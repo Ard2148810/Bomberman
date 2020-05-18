@@ -9,6 +9,7 @@ import ssl
 from SimpleWebSocketServer import WebSocket, SimpleWebSocketServer, SimpleSSLWebSocketServer
 from optparse import OptionParser
 
+
 class SimpleEcho(WebSocket):
 
    def handleMessage(self):
@@ -20,25 +21,53 @@ class SimpleEcho(WebSocket):
    def handleClose(self):
       pass
 
+
+class Room:
+   rooms_number = 0
+   connections = {}
+
+   def __init__(self):
+      self.id = self.rooms_number
+      self.rooms_number += 1
+      self.connected = []
+
+   def connect(self, client):
+      self.connected.append(client)
+      self.connections[client] = self.id
+
+   def disconnect(self, client):
+      self.connected.remove(client)
+      del self.connections[client]
+
+   def send_message(self, message, sender):
+      for client in self.connected:
+         if sender != client:
+            client.sendMessage(message)
+
+
+rooms = [Room()]
+
+
 clients = []
+
+
 class SimpleChat(WebSocket):
 
    def handleMessage(self):
-      for client in clients:
-         if client != self:
-            client.sendMessage(self.address[0] + u' - ' + self.data)
+      client_room_id = Room.connections[self]
+      rooms[client_room_id].send_message(self.data, self)
 
    def handleConnected(self):
       print (self.address, 'connected')
-      for client in clients:
-         client.sendMessage(self.address[0] + u' - connected')
-      clients.append(self)
+      rooms[0].connect(self)
+      rooms[0].send_message(self.address[0] + u' - connected', self)
 
    def handleClose(self):
-      clients.remove(self)
+      client_room_id = Room.connections[self]
+      rooms[client_room_id].send_message(self.address[0] + u' - disconnected', self)
       print (self.address, 'closed')
-      for client in clients:
-         client.sendMessage(self.address[0] + u' - disconnected')
+      rooms[client_room_id].disconnect(self)
+
 
 
 if __name__ == "__main__":
