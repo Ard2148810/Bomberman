@@ -23,12 +23,12 @@ class SimpleEcho(WebSocket):
 
 
 class Room:
-   rooms_number = 0
+   rooms_created = 0
    connections = {}
 
    def __init__(self):
-      self.id = self.rooms_number
-      self.rooms_number += 1
+      self.id = Room.rooms_created
+      Room.rooms_created += 1
       self.connected = []
 
    def connect(self, client):
@@ -45,10 +45,7 @@ class Room:
             client.sendMessage(message)
 
 
-rooms = [Room()]
-
-
-clients = []
+rooms = [Room(), Room(), Room()]
 
 
 class SimpleChat(WebSocket):
@@ -58,9 +55,16 @@ class SimpleChat(WebSocket):
       rooms[client_room_id].send_message(self.data, self)
 
    def handleConnected(self):
-      print (self.address, 'connected')
-      rooms[0].connect(self)
-      rooms[0].send_message(self.address[0] + u' - connected', self)
+      room_id = SimpleChat.get_room_id(self)
+      print (self.address, 'connected to room', room_id)
+      rooms[room_id].connect(self)
+      rooms[room_id].send_message(self.address[0] + u' - connected to room ' + str(room_id), self)
+
+   @staticmethod
+   def get_room_id(client):
+      path = client.request.path.split('/')
+      room_id = int(path[2])
+      return room_id
 
    def handleClose(self):
       client_room_id = Room.connections[self]
