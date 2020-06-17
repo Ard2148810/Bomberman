@@ -1,11 +1,13 @@
+let websocket;
+
 function init() {
-    document.myform.inputUrl.value = "ws://localhost:8000/";
+    document.connectionForm.inputUrl.value = "ws://localhost:8000/";
     //document.myform.inputNickname.value = "Nickname";
-    document.myform.disconnectButton.disabled = true;
+    document.connectionForm.disconnectButton.disabled = true;
 }
 
 function doConnect() {
-    websocket = new WebSocket(document.myform.url.value);
+    websocket = new WebSocket(document.connectionForm.inputUrl.value);
     websocket.onopen = function (evt) {
         onOpen(evt)
     };
@@ -18,18 +20,27 @@ function doConnect() {
     websocket.onerror = function (evt) {
         onError(evt)
     };
+
 }
 
 function onOpen(evt) {
-    writeToScreen("connected\n");
-    document.myform.connectButton.disabled = true;
-    document.myform.disconnectButton.disabled = false;
+    // Sending message with nickname when connected
+    const connectMsg =
+        {
+            "msg_code": "connect",
+            "nick": document.connectionForm.inputNickname.value
+        };
+    connectMsg |> websocket.send;
+
+    console.log("connected");
+    document.connectionForm.connectButton.disabled = true;
+    document.connectionForm.disconnectButton.disabled = false;
 }
 
 function onClose(evt) {
     writeToScreen("disconnected\n");
-    document.myform.connectButton.disabled = false;
-    document.myform.disconnectButton.disabled = true;
+    document.connectionForm.connectButton.disabled = false;
+    document.connectionForm.disconnectButton.disabled = true;
 }
 
 function onMessage(evt) {
@@ -37,12 +48,12 @@ function onMessage(evt) {
 }
 
 function onError(evt) {
-    writeToScreen('error: ' + evt.data + '\n');
+    console.log('error: ' + evt.data);
 
     websocket.close();
 
-    document.myform.connectButton.disabled = false;
-    document.myform.disconnectButton.disabled = true;
+    document.connectionForm.connectButton.disabled = false;
+    document.connectionForm.disconnectButton.disabled = true;
 
 }
 
@@ -52,8 +63,8 @@ function doSend(message) {
 }
 
 function writeToScreen(message) {
-    document.myform.outputtext.value += message
-    document.myform.outputtext.scrollTop = document.myform.outputtext.scrollHeight;
+    document.connectionForm.outputtext.value += message
+    document.connectionForm.outputtext.scrollTop = document.connectionForm.outputtext.scrollHeight;
 
 }
 
@@ -61,11 +72,11 @@ window.addEventListener("load", init, false);
 
 
 function sendText() {
-    doSend(document.myform.inputtext.value);
+    doSend(document.connectionForm.inputtext.value);
 }
 
 function clearText() {
-    document.myform.outputtext.value = "";
+    document.connectionForm.outputtext.value = "";
 }
 
 function doDisconnect() {
