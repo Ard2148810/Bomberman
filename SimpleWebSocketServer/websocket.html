@@ -1,162 +1,35 @@
 <!DOCTYPE html>
-
-<meta charset="utf-8" />
-
-<title>WebSocket Test</title>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Crappy Game – Have fun!</title>
+</head>
+<body>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
-<script language="javascript" type="text/javascript">
-
-
-  function init()
-  {
-	document.myform.url.value = "ws://localhost:8000/"
-	document.myform.inputtext.value = "Hello World!"
-	document.myform.disconnectButton.disabled = true;
-  }
-
-  function doConnect()
-  {
-    websocket = new WebSocket(document.myform.url.value);
-    websocket.onopen = function(evt) { onOpen(evt) };
-    websocket.onclose = function(evt) { onClose(evt) };
-    websocket.onmessage = function(evt) { onMessage(evt) };
-    websocket.onerror = function(evt) { onError(evt) };
-  }
-
-  function onOpen(evt)
-  {
-    writeToScreen("connected\n");
-	document.myform.connectButton.disabled = true;
-	document.myform.disconnectButton.disabled = false;
-  }
-
-  function onClose(evt)
-  {
-    writeToScreen("disconnected\n");
-	document.myform.connectButton.disabled = false;
-	document.myform.disconnectButton.disabled = true;
-  }
-
-  function onMessage(evt)
-  {
-    writeToScreen("response: " + evt.data + '\n');
-  }
-
-  function onError(evt)
-  {
-    writeToScreen('error: ' + evt.data + '\n');
-
-	websocket.close();
-
-	document.myform.connectButton.disabled = false;
-	document.myform.disconnectButton.disabled = true;
-
-  }
-
-  function doSend(message)
-  {
-    writeToScreen("sent: " + message + '\n'); 
-    websocket.send(message);
-  }
-
-  function writeToScreen(message)
-  {
-    document.myform.outputtext.value += message
-	document.myform.outputtext.scrollTop = document.myform.outputtext.scrollHeight;
-
-  }
-
-  window.addEventListener("load", init, false);
-
-
-   function sendText() {
-		doSend( document.myform.inputtext.value );
-   }
-
-  function clearText() {
-		document.myform.outputtext.value = "";
-   }
-
-   function doDisconnect() {
-		websocket.close();
-   }
-
-
-
-   var config = {
-        type: Phaser.AUTO,
-        width: 800,
-        height: 600,
-        physics: {
-            default: 'arcade',
-            arcade: {
-                gravity: { y: 200 }
-            }
-        },
-        scene: {
-            preload: preload,
-            create: create
-        }
-    };
-
-
-
-    var game = new Phaser.Game(config);
-
-    function preload ()
-    {
-        this.load.setBaseURL('http://labs.phaser.io');
-
-        this.load.image('sky', 'assets/skies/space3.png');
-        this.load.image('logo', 'assets/sprites/phaser3-logo.png');
-        this.load.image('red', 'assets/particles/red.png');
-    }
-
-    function create ()
-    {
-        this.add.image(400, 300, 'sky');
-
-        var particles = this.add.particles('red');
-
-        var emitter = particles.createEmitter({
-            speed: 100,
-            scale: { start: 1, end: 0 },
-            blendMode: 'ADD'
-        });
-
-        var logo = this.physics.add.image(400, 100, 'logo');
-
-        logo.setVelocity(100, 200);
-        logo.setBounce(1, 1);
-        logo.setCollideWorldBounds(true);
-
-        emitter.startFollow(logo);
-    }
-
-
-
-</script>
+<script src="game.js"></script>
+<script src="connection.js"></script>
 
 <div id="output"></div>
 
 <form name="myform">
-<p>
-<textarea name="outputtext" rows="20" cols="50"></textarea>
-</p>
-<p>
-<textarea name="inputtext" cols="50"></textarea>
-</p>
-<p>
-<textarea name="url" cols="50"></textarea>
-</p>
-<p>
-<input type="button" name=sendButton value="Send" onClick="sendText();">
-<input type="button" name=clearButton value="Clear" onClick="clearText();">
-<input type="button" name=disconnectButton value="Disconnect" onClick="doDisconnect();">
-<input type="button" name=connectButton value="Connect" onClick="doConnect();">
-</p>
-
-
+    <div>
+        <label>
+            Nickname
+            <input type="text" name="inputNickname">
+        </label>
+    </div>
+    <div>
+        <label>
+            Server address:
+            <input type="text" name="inputUrl">
+        </label>
+    </div>
+    <div>
+        <input type="button" name="sendButton" value="Send" onClick="sendText();">
+        <input type="button" name="disconnectButton" value="Disconnect" onClick="doDisconnect();">
+        <input type="button" name="connectButton" value="Connect" onClick="doConnect();">
+    </div>
 </form>
+</body>
 </html> 
 
