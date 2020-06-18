@@ -6,10 +6,9 @@ Copyright (c) 2013 Dave P.
 import signal
 import sys
 import ssl
-import uuid
 from random import randrange
 
-from SimpleWebSocketServer import WebSocket, SimpleWebSocketServer, SimpleSSLWebSocketServer
+from backend import WebSocket, SimpleWebSocketServer, SimpleSSLWebSocketServer
 from optparse import OptionParser
 
 class BombermanServer:
