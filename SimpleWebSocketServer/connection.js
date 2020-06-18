@@ -38,13 +38,15 @@ function onOpen(evt) {
 }
 
 function onClose(evt) {
-    writeToScreen("disconnected\n");
+    //writeToScreen("disconnected\n");
+    console.log("disconnected");
     document.connectionForm.connectButton.disabled = false;
     document.connectionForm.disconnectButton.disabled = true;
 }
 
 function onMessage(evt) {
-    writeToScreen("response: " + evt.data + '\n');
+    //writeToScreen("response: " + evt.data + '\n');
+    console.log("received message " + evt);
 }
 
 function onError(evt) {
@@ -58,13 +60,13 @@ function onError(evt) {
 }
 
 function doSend(message) {
-    writeToScreen("sent: " + message + '\n');
+    //writeToScreen("sent: " + message + '\n');
     websocket.send(message);
 }
 
 function writeToScreen(message) {
-    document.connectionForm.outputtext.value += message
-    document.connectionForm.outputtext.scrollTop = document.connectionForm.outputtext.scrollHeight;
+    //document.connectionForm.outputtext.value += message
+    //document.connectionForm.outputtext.scrollTop = document.connectionForm.outputtext.scrollHeight;
 
 }
 
@@ -72,11 +74,11 @@ window.addEventListener("load", init, false);
 
 
 function sendText() {
-    doSend(document.connectionForm.inputtext.value);
+    //doSend(document.connectionForm.inputtext.value);
 }
 
 function clearText() {
-    document.connectionForm.outputtext.value = "";
+    //document.connectionForm.outputtext.value = "";
 }
 
 function doDisconnect() {
