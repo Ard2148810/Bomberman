@@ -6,10 +6,27 @@ Copyright (c) 2013 Dave P.
 import signal
 import sys
 import ssl
+import time
+import uuid
 from random import randrange
 
 from backend import WebSocket, SimpleWebSocketServer, SimpleSSLWebSocketServer
 from optparse import OptionParser
+
+class Bomb:
+    def __init__(self,bombermanServer):
+        self.id=uuid.uuid4()
+        self.bombermanServer=bombermanServer
+
+    def start_ticking(self,id):
+        time.sleep(5)
+        bombermanServer.send_bomb_exploaded(id)
+
+
+
+
+
+
 
 class BombermanServer:
 
@@ -18,19 +35,25 @@ class BombermanServer:
         self.map_size_x = 1000
         self.map_size_y = 1000
         self.bombs_amount = 1
+        self.bombs=[]
         self.boxAmount = 10
         self.players = []
         self.box = {}
 
     def start_game(self):
+        self.send_msg_to_all_players("players has connected: ")
+
+        if self.players.__len__()==4:
+            #while self.players.__len__() > 0:
+                for player in self.players:
+                    time.sleep(2)
+                    print("zaczynamy")
 
 
-            for player in self.players:
-                player.sendMessage("zaczynamy")
-                print("zaczynamy")
 
-
-
+    def send_msg_to_all_players(self,msg):
+        for player in self.players:
+            player.sendMessage(msg + player.name)
 
 
     def generate_gifts(self):
@@ -45,7 +68,24 @@ class BombermanServer:
 
     def add_new_player(self,player):
         self.players.append(player)
-        self.start_game()
+
+    def remove_player(self,player):
+        self.players.remove(player)
+
+    def send_bomb_planted(self, x, y):
+        msg={}
+        msg["msg_code"]="Bomb has been planted"
+        msg["x"]=x
+        msg["y"]=y
+        newBomb=Bomb(self)
+        newBomb.start_ticking()
+        self.bombs.append(newBomb)
+        msg["bomb_uid"]=newBomb.id
+
+        self.send_msg_to_all_players(json.dump(msg))
+    def send_bomb_exploaded(self,uid):
+        pass
+
 
 bombermanServer=BombermanServer()
 
@@ -54,15 +94,26 @@ bombermanServer=BombermanServer()
 class Player(WebSocket):
 
     def handleMessage(self):
-        pass
+        msg=json.loads(self.data)
+        if msg["msg_code"]=="connect":
+            self.name=msg["nick"]
+            bombermanServer.start_game()
+        if msg["msg_code"] == "player_move":
+            self.x=msg["x"]     #potrzebna bedzie validacja czy se moze tak zmienic x i y
+            self.y=msg["y"]
+
+
+        if msg["msg_code"] == "player_plant_bomb":
+            bombermanServer.send_bomb_planted(self.x,self.y)
+
+        if msg["msg_code"] == "disconnect":
+            pass
+
 
     def handleConnected(self):
-        print("test")
-        # print(self.data)
-        # bombermanServer.add_new_player(self)
-
+        bombermanServer.add_new_player(self)
     def handleClose(self):
-        pass
+        bombermanServer.remove_player(self)
 
 
 
