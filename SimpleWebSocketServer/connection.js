@@ -30,7 +30,7 @@ function onOpen(evt) {
             "msg_code": "connect",
             "nick": document.connectionForm.inputNickname.value
         };
-    websocket.send(connectMsg);
+    websocket.send(JSON.stringify(connectMsg));
 
     console.log("connected");
     document.connectionForm.connectButton.disabled = true;
