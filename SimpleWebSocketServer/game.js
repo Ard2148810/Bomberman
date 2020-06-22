@@ -11,7 +11,8 @@ var config = {
     },
     scene: {
         preload: preload,
-        create: create
+        create: create,
+        update: update
     }
 };
 
@@ -24,8 +25,18 @@ function preload() {
     this.load.image('sky', 'assets/skies/space3.png');
 }
 
+var text;
+
 function create() {
     this.add.image(400, 300, 'sky');
-    var text = this.add.text(100, 100, 'Connect to the server to start.', { font: '32px Courier', fill: '#00ff00' });
+    text = this.add.text(100, 100, 'Connect to the server to start.', { font: '32px Courier', fill: '#00ff00' });
 
+}
+
+function update() {
+
+}
+
+function handlePlayerConnected() {
+    text.setText('Success! Connected to the server!\nPlayer name: ' + document.connectionForm.inputNickname.value);
 }
