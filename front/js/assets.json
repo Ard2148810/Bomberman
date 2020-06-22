@@ -16,12 +16,6 @@
       "frame_width": 16,
       "frame_height": 16
     },
-    "enemy_spritesheet": {
-      "type": "spritesheet",
-      "source": "assets/images/enemy_spritesheet.png",
-      "frame_width": 16,
-      "frame_height": 16
-    },
     "explosion_image": {
       "type": "image",
       "source": "assets/images/explosion.png"
