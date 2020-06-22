@@ -4,16 +4,15 @@ Copyright (c) 2013 Dave P.
 '''
 
 import signal
-import sys
 import ssl
-import uuid
+import sys
+from optparse import OptionParser
 from random import randrange
 
-from SimpleWebSocketServer import WebSocket, SimpleWebSocketServer, SimpleSSLWebSocketServer
-from optparse import OptionParser
+from backend import WebSocket, SimpleWebSocketServer, SimpleSSLWebSocketServer
+
 
 class BombermanServer:
-
 
     def __init__(self):
         self.map_size_x = 1000
@@ -25,14 +24,9 @@ class BombermanServer:
 
     def start_game(self):
 
-
-            for player in self.players:
-                player.sendMessage("zaczynamy")
-                print("zaczynamy")
-
-
-
-
+        for player in self.players:
+            player.sendMessage("zaczynamy")
+            print("zaczynamy")
 
     def generate_gifts(self):
         pass
@@ -44,12 +38,12 @@ class BombermanServer:
     def send_welcome_msg(self):
         pass
 
-    def add_new_player(self,player):
+    def add_new_player(self, player):
         self.players.append(player)
         self.start_game()
 
-bombermanServer=BombermanServer()
 
+bombermanServer = BombermanServer()
 
 
 class Player(WebSocket):
@@ -64,8 +58,6 @@ class Player(WebSocket):
 
     def handleClose(self):
         pass
-
-
 
 
 # class SimpleEcho(WebSocket):
@@ -165,4 +157,3 @@ if __name__ == "__main__":
 
     print("Server has started")
     server.serveforever()
-
