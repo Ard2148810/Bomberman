@@ -45,7 +45,7 @@ function onClose(evt) {
 }
 
 function onMessage(evt) {   // TODO: Handling incoming messages from server
-    console.log("received message " + evt);
+    console.log("received message " + evt.data);    // DEBUG ONLY
 }
 
 function onError(evt) {
@@ -67,4 +67,9 @@ window.addEventListener("load", init, false);
 
 function doDisconnect() {
     websocket.close();
+}
+
+function sendText() {
+    let json = document.connectionForm.debugRequests.value;
+    doSend(json)
 }

@@ -12,6 +12,13 @@
 <div id="output"></div>
 
 <form name="connectionForm">
+    <div style="color: darkred; background-color: gray; margin: 5px; padding: 5px;">
+        <label>
+            TEST RAW JSON REQUESTS, RESPONSES IN CONSOLE [DEBUG ONLY]:
+            <input type="text" name="debugRequests">
+        </label>
+        <input type="button" name="sendButton" value="Send" onClick="sendText();">
+    </div>
     <div>
         <label>
             Nickname
@@ -25,7 +32,6 @@
         </label>
     </div>
     <div>
-        <input type="button" name="sendButton" value="Send" onClick="sendText();">
         <input type="button" name="disconnectButton" value="Disconnect" onClick="doDisconnect();">
         <input type="button" name="connectButton" value="Connect" onClick="doConnect();">
     </div>
