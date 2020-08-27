@@ -2,7 +2,6 @@ let websocket;
 
 function init() {
     document.connectionForm.inputUrl.value = "ws://localhost:8000/";
-    //document.myform.inputNickname.value = "Nickname";
     document.connectionForm.disconnectButton.disabled = true;
 }
 
@@ -40,14 +39,12 @@ function onOpen(evt) {
 }
 
 function onClose(evt) {
-    //writeToScreen("disconnected\n");
     console.log("disconnected");
     document.connectionForm.connectButton.disabled = false;
     document.connectionForm.disconnectButton.disabled = true;
 }
 
-function onMessage(evt) {
-    //writeToScreen("response: " + evt.data + '\n');
+function onMessage(evt) {   // TODO: Handling incoming messages from server
     console.log("received message " + evt);
 }
 
@@ -61,27 +58,12 @@ function onError(evt) {
 
 }
 
-function doSend(message) {
-    //writeToScreen("sent: " + message + '\n');
+function doSend(message) {  // TODO: Sending messages to server
     websocket.send(message);
-}
-
-function writeToScreen(message) {
-    //document.connectionForm.outputtext.value += message
-    //document.connectionForm.outputtext.scrollTop = document.connectionForm.outputtext.scrollHeight;
-
 }
 
 window.addEventListener("load", init, false);
 
-
-function sendText() {
-    //doSend(document.connectionForm.inputtext.value);
-}
-
-function clearText() {
-    //document.connectionForm.outputtext.value = "";
-}
 
 function doDisconnect() {
     websocket.close();
