@@ -30,7 +30,6 @@ var text;
 function create() {
     this.add.image(400, 300, 'sky');
     text = this.add.text(100, 100, 'Connect to the server to start.', { font: '32px Courier', fill: '#00ff00' });
-
 }
 
 function update() {
