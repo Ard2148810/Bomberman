@@ -14,6 +14,10 @@ from random import randrange
 
 from backend.library.SimpleWebSocketServer import WebSocket, SimpleSSLWebSocketServer, SimpleWebSocketServer
 
+bombTickingTime=30
+moveCooldown=10
+
+
 
 class Bomb:
 
@@ -28,7 +32,7 @@ class Bomb:
         self.player=player
 
     def start_ticking(self):
-        time.sleep(30)
+        time.sleep(bombTickingTime)
         self.bombermanServer.bombs.remove(self)
         self.bombermanServer.send_bomb_exploded(self)
         if self.player.bombAmount<self.player.maxBombs:
@@ -38,8 +42,8 @@ class Bomb:
 class BombermanServer:
 
     def __init__(self):
-        self.map_size_x = 2
-        self.map_size_y = 2
+        self.map_size_x = 10
+        self.map_size_y = 14
         self.bombs_amount = 1
         self.bombs = []
         self.boxAmount = 1
@@ -52,7 +56,7 @@ class BombermanServer:
 
 
     def start_game(self):
-        self.send_msg_to_all_players("players has connected: ")
+        # self.send_msg_to_all_players("players has connected: ")
         print(self.players.__len__())
         if self.players.__len__() == 2:
             self.players[0].x = self.playersPositions[0][0]
@@ -65,14 +69,14 @@ class BombermanServer:
 
     def send_msg_to_all_players(self, msg):
         for player in self.players:
-            player.sendMessage(str(msg))
+            player.sendMessage(str(msg).replace("'","\""))
 
     def generate_gifts(self):
         for i in range(0, self.giftsAmount):
             self.gifts.append(
                 {
                     "gift_uid": str(i),
-                    "gift_pos": (randrange(self.map_size_x), randrange(self.map_size_y)),
+                    "gift_pos": [randrange(self.map_size_x), randrange(self.map_size_y)],
                     "gift_type": randrange(2)
                 }
             )
@@ -168,7 +172,7 @@ class BombermanServer:
     def send_positions(self):
         msg = {"msg_code": "player_pos"}
         while (1):
-            time.sleep(10)
+            time.sleep(moveCooldown)
             for player in self.players:
                 if player.hasNextMove:
                     playerPos = (player.next_x, player.next_y)
