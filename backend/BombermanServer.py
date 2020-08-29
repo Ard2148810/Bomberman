@@ -157,7 +157,7 @@ class BombermanServer:
                     objects_hit.append({"player": player.name})
                     bomb.player.score += 1
                     msg = {"msg_code": "current score", "score": bomb.player.score}
-                    bomb.player.sendMessage(str(msg))
+                    bomb.player.sendMessage(str(msg).replace("'", "\""))
         return objects_hit
 
     def send_bomb_exploded(self, bomb):
@@ -201,7 +201,7 @@ class BombermanServer:
                                 player.maxBombs += 1
                                 player.bombAmount += 1
                                 msg2 = {"msg_code": "bomb_amount", "amount": player.bombAmount}
-                                player.sendMessage(str(msg2))
+                                player.sendMessage(str(msg2).replace("'", "\""))
                             if gift["gift_type"] == 1:
                                 player.x_range += 1
                                 player.y_range += 1
@@ -255,7 +255,7 @@ class Player(WebSocket):
             if self.bombAmount > 0:
                 self.bombAmount -= 1
                 msg = {"msg_code": "bomb_amount", "amount": self.bombAmount}
-                self.sendMessage(str(msg))
+                self.sendMessage(str(msg).replace("'", "\""))
                 bombermanServer.send_bomb_planted(self.x, self.y, self.x_range, self.y_range, self)
         if msg["msg_code"] == "disconnect":
             bombermanServer.remove_player(self)
