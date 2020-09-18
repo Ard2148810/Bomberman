@@ -39,7 +39,7 @@ var mainState = {
         this.flagList = game.add.group();
         this.addPlayers();
         this.explosionList = game.add.group();
-        this.explosionList_2 = game.add.group();
+        this.explosionList2 = game.add.group();
 
 
         this.createMap();
@@ -47,6 +47,10 @@ var mainState = {
         this.playerSpeed = 150;
         this.playerPower = false;
         this.playerDrop = true;
+
+        this.player2Speed = 150;
+        this.player2Power = false;
+        this.player2Drop = true;
 
         this.cursor = game.input.keyboard.createCursorKeys();
         this.enterKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -90,12 +94,12 @@ var mainState = {
         }
 
         game.physics.arcade.collide(this.player, this.wallList);
+        game.physics.arcade.collide(this.player2, this.wallList);
         game.physics.arcade.overlap(this.player, this.explosionList, function(){this.burn(1);}, null, this);
-        game.physics.arcade.overlap(this.player, this.explosionList_2, function(){this.burn(1);}, null, this);
-        game.physics.arcade.overlap(this.explosionList, this.flagList.children[0], function(){this.getFlag(1);}, null, this);
-        game.physics.arcade.overlap(this.explosionList_2, this.flagList.children[1], function(){this.getFlag(2);}, null, this);
-        game.physics.arcade.overlap(this.player, this.bootList, function(){this.speedUp(1);}, null, this);
-        game.physics.arcade.overlap(this.player, this.starList, function(){this.starUp(1);}, null, this);
+        game.physics.arcade.overlap(this.player, this.explosionList2, function(){this.burn(1);}, null, this);
+        game.physics.arcade.overlap(this.player2, this.explosionList2, function(){this.burn(2);}, null, this);
+        game.physics.arcade.overlap(this.player2, this.explosionList, function(){this.burn(1);}, null, this);
+
     },
 
     createMap: function(){
@@ -121,19 +125,22 @@ var mainState = {
         if(player == 1){
             this.player.kill();
         } else {
-            this.player_2.kill();
+            this.player2.kill();
         }
 
         if(gameInPlay){
                 this.showGameWinner(player);
         }
-
         gameInPlay = false;
     },
 
     addPlayers: function(){
         this.player = game.add.sprite(GAME_SIZE - 2 * this.PIXEL_SIZE, GAME_SIZE - 2 * this.PIXEL_SIZE, 'bomber');
         game.physics.arcade.enable(this.player);
+
+
+        this.player2 = game.add.sprite(this.PIXEL_SIZE, this.PIXEL_SIZE, 'bomber');
+        game.physics.arcade.enable(this.player2);
     },
 
     addWall: function(x, y){
@@ -144,7 +151,6 @@ var mainState = {
 
     },
 
-
     detonateBomb: function(player, x, y, explosionList, wallList){
         var fire = [
             game.add.sprite(x, y, 'explosion'),
@@ -153,12 +159,19 @@ var mainState = {
             game.add.sprite(x + 40, y, 'explosion'),
             game.add.sprite(x - 40, y, 'explosion')
         ];
+
         if(player == 1 && mainState.playerPower){
             fire.push(game.add.sprite(x, y + 80, 'explosion'));
             fire.push(game.add.sprite(x, y - 80, 'explosion'));
             fire.push(game.add.sprite(x + 80, y, 'explosion'));
             fire.push(game.add.sprite(x - 80, y, 'explosion'));
+        } else if(player == 2 && mainState.playerPower2) {
+            fire.push(game.add.sprite(x, y + 80, 'explosion'));
+            fire.push(game.add.sprite(x, y - 80, 'explosion'));
+            fire.push(game.add.sprite(x + 80, y, 'explosion'));
+            fire.push(game.add.sprite(x - 80, y, 'explosion'));
         }
+
         for (var i = 0; i < fire.length; i++) {
             fire[i].body.immovable = true;
             explosionList.add(fire[i]);
@@ -210,12 +223,33 @@ var mainState = {
             }, 2000);
 
             setTimeout(this.thisEnableBomb, 2000);
+        } else if(player == 2 && this.player2Drop) {
+            this.player2Drop = false;
+            gridX = this.player2.x - this.player2.x % 40;
+            gridY = this.player2.y - this.player2.y % 40;
+
+            bomb = game.add.sprite(gridX, gridY, 'bomb');
+            game.physics.arcade.enable(bomb);
+            bomb.body.immovable = true;
+            this.bombList2.add(bomb);
+
+            detonateBomb = this.detonateBomb;
+            explosionList2 = this.explosionList;
+            wallList = this.wallList;
+
+            setTimeout(function(){
+                bomb.kill();
+                detonateBomb(player, bomb.x, bomb.y, explosionList, wallList);
+                mainState.enablePlayerBomb(1);
+            }, 2000);
         }
     },
 
     enablePlayerBomb: function(player){
         if(player == 1){
             this.playerDrop = true;
+        } else {
+            this.player2Drop = true;
         }
     },
 
