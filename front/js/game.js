@@ -1,5 +1,6 @@
 var scoreBoard = document.querySelectorAll(".score");
 var SIZE = 15;
+
 var mainState = {
     preload: function(){
         game.load.image('grass', 'assets/images/grass.png');
@@ -62,6 +63,9 @@ var mainState = {
         if(!gameInPlay){
             this.showGameWinner(null);
         }
+
+        // Pass this object to the connection
+        target = this;
     },
 
     update: function(){
@@ -83,6 +87,8 @@ var mainState = {
                 this.player.body.velocity.y = (this.playerSpeed);
                 this.player.loadTexture('bomber-front', 0);
             }
+            // console.log(`${this.player.x}, ${this.player.y}`); // TODO: Position changed, send it to the server
+            this.messagePlayerMove(this.player.x, this.player.y, 0);
         } else{
             this.player.body.velocity.x = 0;
             this.player.body.velocity.y = 0;
@@ -284,6 +290,54 @@ var mainState = {
         gameInPlay = true;
         game.state.start('main');
     },
+
+    // TODO: Implement functions
+    messageHandlePlayerPos: function (msg) {
+        console.log(msg.msg_code + " IS NOT HANDLED");
+        this.player2.x = msg.x;
+        this.player2.y = msg.y;
+    },
+
+    messageHandleWelcome: function (msg) {
+        console.log(msg.msg_code + " IS NOT HANDLED");
+    },
+
+    messageHandleBombPlanted: function (msg) {
+        console.log(msg.msg_code + " IS NOT HANDLED");
+    },
+
+    messageHandleBombExploded: function (msg) {
+        console.log(msg.msg_code + " IS NOT HANDLED");
+    },
+
+    messageHandleCurrentScore: function (msg) {
+        console.log(msg.msg_code + " IS NOT HANDLED");
+    },
+
+    messageHandleNewBombBox: function (msg) {
+        console.log(msg.msg_code + " IS NOT HANDLED");
+    },
+
+    messageHandleBombAmount: function (msg) {
+        console.log(msg.msg_code + " IS NOT HANDLED");
+    },
+
+    messagePlayerMove: function(x, y, uid) { // TODO: Call when player moves, probably UIDs can be ignored
+        const msg = {
+            "msg_code": "player_move",
+            "x": x,
+            "y": y,
+            "uid": uid
+        }
+        doSend(JSON.stringify(msg));
+    },
+
+    messagePlayerPlantBomb: function (uid) { // TODO: Call when bomb has been planted
+        const msg = {
+            "uid": uid
+        }
+        doSend(JSON.stringify(msg));
+    }
 
 };
 
