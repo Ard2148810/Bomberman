@@ -14,7 +14,7 @@ from random import randrange
 
 from backend.library.SimpleWebSocketServer import WebSocket, SimpleSSLWebSocketServer, SimpleWebSocketServer
 
-bombTickingTime = 30
+bombTickingTime = 5
 moveCooldown = 1
 
 
@@ -133,6 +133,7 @@ class BombermanServer:
         threading.Thread(target=newBomb.start_ticking).start()
         self.bombs.append(newBomb)
         msg["bomb_uid"] = str(newBomb.id)
+        msg["nick"] = player.name
         self.send_msg_to_all_players(str(msg))
 
     def evaluate_blast(self, blastRange, bomb, mode):
@@ -166,22 +167,23 @@ class BombermanServer:
     def send_bomb_exploded(self, bomb):
         objects_hit = []
 
-        blastRange = range(bomb.x + 1, bomb.x + bomb.x_range + 1)
-        objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
-        blastRange = range(bomb.x - 1, bomb.x - bomb.x_range - 1, -1)
-        objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
-        blastRange = range(bomb.y + 1, bomb.y + bomb.y_range + 1)
-        objects_hit.extend(self.evaluate_blast(blastRange, bomb, "y"))
-        blastRange = range(bomb.y - 1, bomb.y - bomb.y_range - 1, -1)
-        objects_hit.extend(self.evaluate_blast(blastRange, bomb, "y"))
-        blastRange = range(bomb.x, bomb.x + 1)
-        objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
+ #       blastRange = range(bomb.x + 1, bomb.x + bomb.x_range + 1)
+ #       objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
+ #       blastRange = range(bomb.x - 1, bomb.x - bomb.x_range - 1, -1)
+ #       objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
+ #       blastRange = range(bomb.y + 1, bomb.y + bomb.y_range + 1)
+ #       objects_hit.extend(self.evaluate_blast(blastRange, bomb, "y"))
+ #       blastRange = range(bomb.y - 1, bomb.y - bomb.y_range - 1, -1)
+ #       objects_hit.extend(self.evaluate_blast(blastRange, bomb, "y"))
+ #       blastRange = range(bomb.x, bomb.x + 1)
+ #       objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
 
         msg = {
             "msg_code": "Bomb exploded",
             "bomb_uid": str(bomb.id),
             "x_range": bomb.x_range,
             "y_range": bomb.y_range,
+            "name": bomb.player.name,
             "objects_hit": objects_hit
         }
 
