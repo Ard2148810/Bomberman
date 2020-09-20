@@ -1,5 +1,6 @@
 var scoreBoard = document.querySelectorAll(".score");
 var SIZE = 15;
+var nickName;
 
 var mainState = {
     preload: function(){
@@ -293,9 +294,12 @@ var mainState = {
 
     // TODO: Implement functions
     messageHandlePlayerPos: function (msg) {
-        console.log(msg.msg_code + " IS NOT HANDLED");
-        this.player2.x = msg.x;
-        this.player2.y = msg.y;
+        console.log(msg.msg_code + " probably IS HANDLED");
+        if(msg.nick != this.nickName) {
+            console.log("msg: " + msg.nick + "saved: " + this.nickName);
+            this.player2.x = msg.x;
+            this.player2.y = msg.y;
+        }
     },
 
     messageHandleWelcome: function (msg) {
@@ -337,6 +341,11 @@ var mainState = {
             "uid": uid
         }
         doSend(JSON.stringify(msg));
+    },
+
+    saveNickName: function (nickName) {
+        this.nickName = nickName;
+        console.log("Nickname: " + this.nickName);
     }
 
 };

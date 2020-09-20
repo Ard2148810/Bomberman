@@ -7,6 +7,7 @@ function init() {
 }
 
 function doConnect() {
+    saveNickName();
     websocket = new WebSocket(document.connectionForm.inputUrl.value);
     websocket.onopen = function (evt) {
         onOpen(evt)
@@ -147,3 +148,10 @@ function messageHandleBombAmount(msg) {
         target.messageHandleBombAmount(msg);
     }
 }
+function saveNickName() {
+    if(target !== null) {
+        target.saveNickName(document.connectionForm.inputNickname.value);
+    }
+}
+
+
