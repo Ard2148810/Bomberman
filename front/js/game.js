@@ -291,7 +291,7 @@ var mainState = {
         if(player == null){
             this.button = game.add.button(230, 350, 'start-game');
         } else {
-            this.gameMessage = game.add.text(0, 0, "GAME OVER!\nPLAYER " + player + " WINS", this.messageStyle);
+            this.gameMessage = game.add.text(0, 0, "GAME OVER!\n " + (player === 1 ? this.player1nick : this.player2nick) + " WINS", this.messageStyle);
             this.gameMessage.setTextBounds(0, 0, 600, 560);
             this.button = game.add.button(230, 350, 'start-game');
         }
@@ -310,16 +310,19 @@ var mainState = {
         if(this.startPos1 === false && msg.nick.localeCompare(this.nickName) === 0) {
             this.player.x = msg.x;
             this.player.y = msg.y;
+            this.player1nick = msg.nick;
             this.startPos1 = true;
+            console.log("Your nick is: " + this.player1nick);
         }
         if(this.startPos2 === false && msg.nick.localeCompare(this.nickName) !== 0) {
             this.player2.x = msg.x;
             this.player2.y = msg.y;
+            this.player2nick = msg.nick;
             this.startPos2 = true;
+            console.log("Your enemy is: " + this.player2nick);
         }
 
         if(msg.nick.localeCompare(this.nickName) !== 0) {
-            console.log("msg: " + msg.nick + "saved: " + this.nickName);
             this.player2.x = msg.x;
             this.player2.y = msg.y;
         }
