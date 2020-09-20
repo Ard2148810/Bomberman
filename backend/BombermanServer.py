@@ -117,8 +117,8 @@ class BombermanServer:
         msg["client_uid"] = "404"  # todo
         msg["bombs_amount"] = self.bombs_amount
         msg["current_score"] = 0
-        msg["box"] = self.box
-        msg["gifts"] = self.gifts
+        # msg["box"] = self.box
+        # msg["gifts"] = self.gifts
         self.send_msg_to_all_players(str(msg))
 
     def add_new_player(self, player):
