@@ -210,18 +210,19 @@ var mainState = {
          mainState.enablePlayerBomb(2);
     },
 
-    dropBomb: function(player, bombId){
+    dropBomb: function(player, msg){
+        let bombId = msg.bomb_uid
         var gridX;
         var gridY;
         var bomb;
         var detonateBomb;
         var explosionList;
         var wallList;
-        if(player == 1  && this.playerDrop){
+        if(player === 1  && this.playerDrop){
             console.log("Player 1 planting");
             this.playerDrop = false;
-            gridX = this.player.x - this.player.x % 40;
-            gridY = this.player.y - this.player.y % 40;
+            gridX = msg.x - msg.x % 40;
+            gridY = msg.y - msg.y % 40;
             //this.messagePlayerPlantBomb(1);
 
             bomb = game.add.sprite(gridX, gridY, 'bomb');
@@ -242,8 +243,8 @@ var mainState = {
         } else if(player == 2 && this.player2Drop) {
             console.log("Player 2 planting");
             this.player2Drop = false;
-            gridX = this.player2.x - this.player2.x % 40;
-            gridY = this.player2.y - this.player2.y % 40;
+            gridX = msg.x - msg.x % 40;
+            gridY = msg.y - msg.y % 40;
 
             bomb = game.add.sprite(gridX, gridY, 'bomb');
             game.physics.arcade.enable(bomb);
@@ -305,7 +306,7 @@ var mainState = {
     // TODO: Implement functions
     messageHandlePlayerPos: function (msg) {
         console.log(msg.msg_code + " probably IS HANDLED");
-        if(msg.nick != this.nickName) {
+        if(msg.nick.localeCompare(this.nickName) !== 0) {
             console.log("msg: " + msg.nick + "saved: " + this.nickName);
             this.player2.x = msg.x;
             this.player2.y = msg.y;
@@ -321,21 +322,18 @@ var mainState = {
         console.log(msg.msg_code + " IS NOT HANDLED");
         if(msg.nick.localeCompare(this.nickName) === 0) {
             console.log("This player planted");
-            this.dropBomb(1, msg.bomb_uid);
+            this.dropBomb(1, msg);
         } else {
             console.log("The other player planted");
-            this.dropBomb(2, msg.bomb_uid);
+            this.dropBomb(2, msg);
         }
 
     },
 
     messageHandleBombExploded: function (msg) {
         console.log(msg.msg_code + " IS NOT HANDLED");
-        if(msg.name == this.nickName) {
-            this.explode(msg.bomb_uid);
-        } else {
-            this.explode(msg.bomb_uid);
-        }
+        //this.explode(msg.bomb_uid);
+        this.explode(msg.bomb_uid);
     },
 
     messageHandleCurrentScore: function (msg) {
