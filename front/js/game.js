@@ -92,7 +92,6 @@ var mainState = {
                 this.player.body.velocity.y = (this.playerSpeed);
                 this.player.loadTexture('bomber-front', 0);
             }
-            // console.log(`${this.player.x}, ${this.player.y}`); // TODO: Position changed, send it to the server
             this.messagePlayerMove(this.player.x, this.player.y, 0);
         } else{
             this.player.body.velocity.x = 0;
@@ -110,7 +109,6 @@ var mainState = {
         game.physics.arcade.overlap(this.player, this.explosionList2, function(){this.burn(1);}, null, this);
         game.physics.arcade.overlap(this.player2, this.explosionList, function(){this.burn(2);}, null, this);
         game.physics.arcade.overlap(this.player2, this.explosionList2, function(){this.burn(2);}, null, this);
-
     },
 
     createMap: function(){
@@ -166,6 +164,8 @@ var mainState = {
     },
 
     detonateBomb: function(x, y, explosionList, wallList){
+
+
         var fire = [
             game.add.sprite(x, y, 'explosion'),
             game.add.sprite(x, y + 40, 'explosion'),
@@ -193,6 +193,8 @@ var mainState = {
             }
         }
 
+        this.update();
+
         setTimeout(function(){
             explosionList.forEach(function(element){
                 element.kill();
@@ -206,6 +208,7 @@ var mainState = {
         var wallList = this.wallList;
         var detonateBomb = this.detonateBomb;
         var bomb1 = bombMap.get(bomb_uid);
+
         bomb1.kill();
         detonateBomb(bomb1.x, bomb1.y, explosionList, wallList);
         mainState.enablePlayerBomb(1);
