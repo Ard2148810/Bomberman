@@ -34,7 +34,6 @@ function onOpen(evt) {
     websocket.send(JSON.stringify(connectMsg));
 
     console.log("connected");
-    handlePlayerConnected();
 
     document.connectionForm.connectButton.disabled = true;
     document.connectionForm.disconnectButton.disabled = false;
