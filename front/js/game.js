@@ -64,7 +64,7 @@ var mainState = {
         this.infoStyle = { fill: "#FFFFFF", boundsAlignV: "middle", boundsAlignH: "center", align: "center", wordWrapWidth: 600};
 
         if(!gameInPlay){
-            this.showGameWinner(null);
+            this.restartGame();
         }
 
         // Pass this object to the connection
@@ -289,7 +289,7 @@ var mainState = {
 
     showGameWinner: function(player){
         if(player == null){
-            this.button = game.add.button(230, 350, 'start-game');
+
         } else {
             this.gameMessage = game.add.text(0, 0, "GAME OVER!\n " + (player === 1 ? this.player1nick : this.player2nick) + " WINS", this.messageStyle);
             this.gameMessage.setTextBounds(0, 0, 600, 560);
