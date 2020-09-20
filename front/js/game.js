@@ -69,6 +69,8 @@ var mainState = {
 
         // Pass this object to the connection
         target = this;
+        this.startPos1 = false;
+        this.startPos2 = false;
     },
 
     update: function(){
@@ -305,7 +307,17 @@ var mainState = {
 
     // TODO: Implement functions
     messageHandlePlayerPos: function (msg) {
-        console.log(msg.msg_code + " probably IS HANDLED");
+        if(this.startPos1 === false && msg.nick.localeCompare(this.nickName) === 0) {
+            this.player.x = msg.x;
+            this.player.y = msg.y;
+            this.startPos1 = true;
+        }
+        if(this.startPos2 === false && msg.nick.localeCompare(this.nickName) !== 0) {
+            this.player2.x = msg.x;
+            this.player2.y = msg.y;
+            this.startPos2 = true;
+        }
+
         if(msg.nick.localeCompare(this.nickName) !== 0) {
             console.log("msg: " + msg.nick + "saved: " + this.nickName);
             this.player2.x = msg.x;

@@ -51,7 +51,7 @@ class BombermanServer:
         self.box = []
         self.giftsAmount = 1
         self.gifts = []
-        self.playersPositions = [(self.map_min_pos_x, self.map_min_pos_y), (self.map_min_pos_x, self.map_size_y), (self.map_size_x, self.map_min_pos_y), (self.map_size_x, self.map_size_y)]
+        self.playersPositions = [(self.map_min_pos_x, self.map_min_pos_y), (self.map_size_x, self.map_size_y), (self.map_size_x, self.map_min_pos_y), (self.map_size_x, self.map_size_y)]
         self.voidBoxes = [(0, 1), (1, 0), (self.map_size_x - 1, 0), (self.map_size_x, 1), (0, self.map_size_y - 1),
                           (1, self.map_size_y), (self.map_size_x - 1, self.map_size_y),
                           (self.map_size_x, self.map_size_x - 1)]
