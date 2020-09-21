@@ -14,7 +14,7 @@ from random import randrange
 
 from backend.library.SimpleWebSocketServer import WebSocket, SimpleSSLWebSocketServer, SimpleWebSocketServer
 
-bombTickingTime = 30
+bombTickingTime = 5
 moveCooldown = 1
 
 
@@ -40,8 +40,10 @@ class Bomb:
 class BombermanServer:
 
     def __init__(self):
-        self.map_size_x = 14
-        self.map_size_y = 10
+        self.map_size_x = 525
+        self.map_size_y = 525
+        self.map_min_pos_x = 40
+        self.map_min_pos_y = 40
         self.bombs_amount = 1
         self.bombs = []
         self.boxAmount = 1
@@ -49,7 +51,7 @@ class BombermanServer:
         self.box = []
         self.giftsAmount = 1
         self.gifts = []
-        self.playersPositions = [(0, 0), (0, self.map_size_y), (self.map_size_x, 0), (self.map_size_x, self.map_size_y)]
+        self.playersPositions = [(self.map_min_pos_x, self.map_min_pos_y), (self.map_size_x, self.map_size_y), (self.map_size_x, self.map_min_pos_y), (self.map_size_x, self.map_size_y)]
         self.voidBoxes = [(0, 1), (1, 0), (self.map_size_x - 1, 0), (self.map_size_x, 1), (0, self.map_size_y - 1),
                           (1, self.map_size_y), (self.map_size_x - 1, self.map_size_y),
                           (self.map_size_x, self.map_size_x - 1)]
@@ -73,7 +75,8 @@ class BombermanServer:
             self.players[1].y = self.playersPositions[1][1]
 
             self.send_welcome_msg()
-            threading.Thread(target=self.send_positions).start()
+            # threading.Thread(target=self.send_positions).start()
+            self.send_positions()
 
     def send_msg_to_all_players(self, msg):
         for player in self.players:
@@ -114,8 +117,8 @@ class BombermanServer:
         msg["client_uid"] = "404"  # todo
         msg["bombs_amount"] = self.bombs_amount
         msg["current_score"] = 0
-        msg["box"] = self.box
-        msg["gifts"] = self.gifts
+        # msg["box"] = self.box
+        # msg["gifts"] = self.gifts
         self.send_msg_to_all_players(str(msg))
 
     def add_new_player(self, player):
@@ -130,6 +133,7 @@ class BombermanServer:
         threading.Thread(target=newBomb.start_ticking).start()
         self.bombs.append(newBomb)
         msg["bomb_uid"] = str(newBomb.id)
+        msg["nick"] = player.name
         self.send_msg_to_all_players(str(msg))
 
     def evaluate_blast(self, blastRange, bomb, mode):
@@ -163,22 +167,23 @@ class BombermanServer:
     def send_bomb_exploded(self, bomb):
         objects_hit = []
 
-        blastRange = range(bomb.x + 1, bomb.x + bomb.x_range + 1)
-        objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
-        blastRange = range(bomb.x - 1, bomb.x - bomb.x_range - 1, -1)
-        objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
-        blastRange = range(bomb.y + 1, bomb.y + bomb.y_range + 1)
-        objects_hit.extend(self.evaluate_blast(blastRange, bomb, "y"))
-        blastRange = range(bomb.y - 1, bomb.y - bomb.y_range - 1, -1)
-        objects_hit.extend(self.evaluate_blast(blastRange, bomb, "y"))
-        blastRange = range(bomb.x, bomb.x + 1)
-        objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
+ #       blastRange = range(bomb.x + 1, bomb.x + bomb.x_range + 1)
+ #       objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
+ #       blastRange = range(bomb.x - 1, bomb.x - bomb.x_range - 1, -1)
+ #       objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
+ #       blastRange = range(bomb.y + 1, bomb.y + bomb.y_range + 1)
+ #       objects_hit.extend(self.evaluate_blast(blastRange, bomb, "y"))
+ #       blastRange = range(bomb.y - 1, bomb.y - bomb.y_range - 1, -1)
+ #       objects_hit.extend(self.evaluate_blast(blastRange, bomb, "y"))
+ #       blastRange = range(bomb.x, bomb.x + 1)
+ #       objects_hit.extend(self.evaluate_blast(blastRange, bomb, "x"))
 
         msg = {
             "msg_code": "Bomb exploded",
             "bomb_uid": str(bomb.id),
             "x_range": bomb.x_range,
             "y_range": bomb.y_range,
+            "name": bomb.player.name,
             "objects_hit": objects_hit
         }
 
@@ -186,31 +191,31 @@ class BombermanServer:
 
     def send_positions(self):
         msg = {"msg_code": "player_pos"}
-        while (1):
-            time.sleep(moveCooldown)
-            for player in self.players:
-                if player.hasNextMove:
-                    playerPos = (player.next_x, player.next_y)
-                    player.hasNextMove = False
-                    player.x = player.next_x
-                    player.y = player.next_y
+        # while (1):
+        #     time.sleep(moveCooldown)
+        for player in self.players:
+            if player.hasNextMove:
+                playerPos = (player.next_x, player.next_y)
+                player.hasNextMove = False
+                player.x = player.next_x
+                player.y = player.next_y
 
-                    for gift in bombermanServer.gifts:
-                        if gift["gift_pos"] == playerPos:
-                            if gift["gift_type"] == 0:
-                                player.maxBombs += 1
-                                player.bombAmount += 1
-                                msg2 = {"msg_code": "bomb_amount", "amount": player.bombAmount}
-                                player.sendMessage(str(msg2).replace("'", "\""))
-                            if gift["gift_type"] == 1:
-                                player.x_range += 1
-                                player.y_range += 1
-                            bombermanServer.gifts.remove(gift)
+                for gift in bombermanServer.gifts:
+                    if gift["gift_pos"] == playerPos:
+                        if gift["gift_type"] == 0:
+                            player.maxBombs += 1
+                            player.bombAmount += 1
+                            msg2 = {"msg_code": "bomb_amount", "amount": player.bombAmount}
+                            player.sendMessage(str(msg2).replace("'", "\""))
+                        if gift["gift_type"] == 1:
+                            player.x_range += 1
+                            player.y_range += 1
+                        bombermanServer.gifts.remove(gift)
 
-                msg["nick"] = player.name
-                msg["x"] = player.x
-                msg["y"] = player.y
-                self.send_msg_to_all_players(str(msg))
+            msg["nick"] = player.name
+            msg["x"] = player.x
+            msg["y"] = player.y
+            self.send_msg_to_all_players(str(msg))
 
 
 bombermanServer = BombermanServer()
@@ -243,13 +248,14 @@ class Player(WebSocket):
                     isntOnBox = False
                     break
 
-            if abs(self.x - msg["x"]) <= 1 and abs(self.y - msg["y"]) <= 1 \
-                    and msg["x"] <= bombermanServer.map_size_x and msg["y"] <= bombermanServer.map_size_y \
-                    and msg["x"] >= 0 and msg["y"] >= 0 \
-                    and isntOnBox and ~self.hasNextMove:
-                self.next_x = msg["x"]
-                self.next_y = msg["y"]
-                self.hasNextMove = True
+            # if abs(self.x - msg["x"]) <= 1 and abs(self.y - msg["y"]) <= 1 \
+            #         and msg["x"] <= bombermanServer.map_size_x and msg["y"] <= bombermanServer.map_size_y \
+            #         and msg["x"] >= 0 and msg["y"] >= 0 \
+            #         and isntOnBox and ~self.hasNextMove:
+            self.next_x = msg["x"]
+            self.next_y = msg["y"]
+            self.hasNextMove = True
+            bombermanServer.send_positions()
 
         if msg["msg_code"] == "player_plant_bomb":
             if self.bombAmount > 0:

@@ -1,4 +1,5 @@
 let websocket;
+let target;
 
 function init() {
     document.connectionForm.inputUrl.value = "ws://localhost:8000/";
@@ -6,6 +7,7 @@ function init() {
 }
 
 function doConnect() {
+    saveNickName();
     websocket = new WebSocket(document.connectionForm.inputUrl.value);
     websocket.onopen = function (evt) {
         onOpen(evt)
@@ -32,7 +34,6 @@ function onOpen(evt) {
     websocket.send(JSON.stringify(connectMsg));
 
     console.log("connected");
-    handlePlayerConnected();
 
     document.connectionForm.connectButton.disabled = true;
     document.connectionForm.disconnectButton.disabled = false;
@@ -105,47 +106,51 @@ function sendText() {
 // Messages
 // (UIDs are probably useless since server knows which player sends message, but they are kept for consistency)
 
-function messagePlayerMove(x, y, uid) { // TODO: Call when player moves
-    const msg = {
-        "msg_code": "player_move",
-        "x": x,
-        "y": y,
-        "uid": uid
-    }
-    doSend(JSON.stringify(msg));
-}
-
-function messagePlayerPlantBomb(uid) { // TODO: Call when bomb has been planted
-    const msg = {
-        "uid": uid
-    }
-    doSend(JSON.stringify(msg));
-}
-// TODO:
 function messageHandleWelcome(msg) {
-    console.log(msg.msg_code)
+    if(target !== null) {
+        target.messageHandleWelcome(msg);
+    }
 }
 
 function messageHandlePlayerPos(msg) {
-    console.log(msg.msg_code)
+    if(target !== null) {
+        target.messageHandlePlayerPos(msg);
+    }
 }
 
 function messageHandleBombPlanted(msg) {
-    console.log(msg.msg_code)
+    if(target !== null) {
+        target.messageHandleBombPlanted(msg);
+    }
 }
 
 function messageHandleBombExploded(msg) {
-    console.log(msg.msg_code)
+    if(target !== null) {
+        target.messageHandleBombExploded(msg);
+    }
 }
 
 function messageHandleCurrentScore(msg) {
-    console.log(msg.msg_code)
+    if(target !== null) {
+        target.messageHandleCurrentScore(msg);
+    }
 }
 
 function messageHandleNewBombBox(msg) {
-    console.log(msg.msg_code)
+    if(target !== null) {
+        target.messageHandleNewBombBox(msg);
+    }
 }
 
 function messageHandleBombAmount(msg) {
-    console.log(msg.msg_code)
+    if(target !== null) {
+        target.messageHandleBombAmount(msg);
+    }
 }
+function saveNickName() {
+    if(target !== null) {
+        target.saveNickName(document.connectionForm.inputNickname.value);
+    }
+}
+
+
