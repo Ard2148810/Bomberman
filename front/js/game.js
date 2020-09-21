@@ -193,7 +193,7 @@ var mainState = {
             }
         }
 
-        this.update();
+        //this.update();
 
         setTimeout(function(){
             explosionList.forEach(function(element){
