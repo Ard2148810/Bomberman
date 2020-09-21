@@ -1,0 +1,11 @@
+pre {
+    font-size: 3rem;
+    background-color: black;
+    color: white;
+    line-height: 0.6;
+}
+
+#game {
+    display: inline-block;
+    padding-bottom: 20px;
+}
