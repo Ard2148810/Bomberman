@@ -40,14 +40,14 @@ class Bomb:
 class BombermanServer:
 
     def __init__(self):
-        self.map_size_x = 14
+        self.map_size_x = 10
         self.map_size_y = 10
         self.bombs_amount = 1
         self.bombs = []
         self.boxAmount = 1
         self.players = []
         self.box = []
-        self.giftsAmount = 1
+        self.giftsAmount = 5
         self.gifts = []
         self.playersPositions = [(0, 0), (0, self.map_size_y), (self.map_size_x, 0), (self.map_size_x, self.map_size_y)]
         self.voidBoxes = [(0, 1), (1, 0), (self.map_size_x - 1, 0), (self.map_size_x, 1), (0, self.map_size_y - 1),
@@ -95,13 +95,13 @@ class BombermanServer:
 
     def generate_boxes(self):
         for i in range(0, self.boxAmount):
-            generatedCoords = (randrange(self.map_size_x), randrange(self.map_size_y))
+            generatedCoords = [randrange(self.map_size_x), randrange(self.map_size_y)]
             if generatedCoords in self.voidBoxes or generatedCoords in self.playersPositions or generatedCoords in self.standardBoxes:
                 continue
             self.box.append(
                 {
                     "box_uid": str(i),
-                    "box_pos": (generatedCoords)
+                    "box_pos": generatedCoords
                 }
             )
 
@@ -116,6 +116,7 @@ class BombermanServer:
         msg["current_score"] = 0
         msg["box"] = self.box
         msg["gifts"] = self.gifts
+        print(msg)
         self.send_msg_to_all_players(str(msg))
 
     def add_new_player(self, player):
