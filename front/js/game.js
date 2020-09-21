@@ -1,4 +1,3 @@
-console.log("Game will be here!");
 const CH_WALL = 'x';
 const CH_PLAYER = 'o';
 const CH_BOMB = '+';
@@ -10,9 +9,11 @@ class BomberGame {
         this.screen = screen;
         this.map = this.generateMap(size.x, size.y);
         this.players = new Map();
+        this.bombs = new Map();
 
         this.addPlayer(new Player("Player1", {"x": 1, "y": 1}));
         this.addPlayer(new Player("Player2", {"x": 11, "y": 11}));
+        this.addBomb(new Bomb("123bmb", {"x": 1, "y": 1}));
         this.players.get("Player1").setPosition(2, 3);
         this.displayMap(this.map, screen);
     }
@@ -51,6 +52,9 @@ class BomberGame {
         });
 
         // Add bombs to the map
+        this.bombs.forEach(bomb => {
+            tmpMap[bomb.position.x][bomb.position.y] = CH_BOMB;
+        });
 
         // Display the map
         tmpMap.forEach(row => {
@@ -70,11 +74,10 @@ class BomberGame {
         this.displayMap(this.map, this.screen);
     }
 
-}
-
-window.onload = () => {
-    const screen = document.getElementById('display');
-    const game = new BomberGame(screen, {"x": 13, "y": 13});
+    addBomb = (bomb) => {
+        this.bombs.set(bomb.uid, bomb);
+        this.displayMap(this.map, this.screen);
+    }
 }
 
 class Player {
@@ -87,5 +90,16 @@ class Player {
     setPosition = (x, y) => {
         this.position.x = x;
         this.position.y = y;
+    }
+}
+
+class Bomb {
+    constructor(uid, position) {
+        this.uid = uid;
+        this.position = position;
+    }
+
+    explode = () => {
+        console.log("Explosion, but not implemented");
     }
 }
