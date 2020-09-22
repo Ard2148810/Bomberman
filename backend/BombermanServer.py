@@ -15,7 +15,7 @@ from random import randrange
 from backend.library.SimpleWebSocketServer import WebSocket, SimpleSSLWebSocketServer, SimpleWebSocketServer
 
 bombTickingTime = 10
-moveCooldown = 5
+moveCooldown = 1
 
 
 class Bomb:
@@ -44,10 +44,10 @@ class BombermanServer:
         self.map_size_y = 10
         self.bombs_amount = 1
         self.bombs = []
-        self.boxAmount = 200
+        self.boxAmount = 0
         self.players = []
         self.box = []
-        self.giftsAmount = 5
+        self.giftsAmount = 2
         self.gifts = []
         self.playersPositions = [[1, 1], [1, self.map_size_y-1], [self.map_size_x-1, 1], [self.map_size_x-1, self.map_size_y-1]]
         self.voidBoxes = [[1, 2], [2, 1], [self.map_size_x - 2, 1], [self.map_size_x-1, 2], [1, self.map_size_y - 2],
@@ -76,15 +76,15 @@ class BombermanServer:
             threading.Thread(target=self.send_positions).start()
 
     def send_msg_to_all_players(self, msg):
-        print(json.dumps(msg).replace("'", "\""))
+        print(str(msg).replace("'", "\""))
         for player in self.players:
-            player.sendMessage(json.dumps(msg).replace("'", "\""))
+            player.sendMessage(str(msg).replace("'", "\""))
 
     def generate_gifts(self):
         for i in range(0, self.giftsAmount):
             giftX=randrange(1,self.map_size_x-1)
             giftY=randrange(1,self.map_size_y-1)
-            if (giftX,giftY) not in self.standardBoxes:
+            if [giftX,giftY] not in self.standardBoxes:
                 self.gifts.append(
                     {
                         "uid": str(uuid.uuid4()),
@@ -114,11 +114,12 @@ class BombermanServer:
         msg["map_size_y"] = self.map_size_y + 1
         msg["bombs_amount"] = self.bombs_amount
         msg["current_score"] = 0
-        msg["box"] = json.dumps(self.box)
-        msg["gifts"] = json.dumps(self.gifts)
+        msg["box"] = str(self.box)
+        msg["gifts"] = str(self.gifts)
         for player in self.players:
             msg["client_uid"] = player.name
-            player.sendMessage(json.dumps(msg).replace("'", "\""))
+            print(str(msg).replace("'", "\""))
+            player.sendMessage(str(msg).replace("'", "\""))
 
 
     def add_new_player(self, player):
@@ -160,7 +161,7 @@ class BombermanServer:
                     objects_hit.append(player.name)
                     bomb.player.score += 1
                     msg = {"msg_code": "current score", "score": bomb.player.score}
-                    bomb.player.sendMessage(json.dumps(msg).replace("'", "\""))
+                    bomb.player.sendMessage(str(msg).replace("'", "\""))
         return objects_hit
 
     def send_bomb_exploded(self, bomb):
@@ -194,7 +195,7 @@ class BombermanServer:
             time.sleep(moveCooldown)
             for player in self.players:
                 if player.hasNextMove:
-                    playerPos = (player.next_x, player.next_y)
+                    playerPos = [player.next_x, player.next_y]
                     player.hasNextMove = False
                     player.x = player.next_x
                     player.y = player.next_y
@@ -205,7 +206,7 @@ class BombermanServer:
                                 player.maxBombs += 1
                                 player.bombAmount += 1
                                 msg2 = {"msg_code": "bomb_amount", "amount": player.bombAmount}
-                                player.sendMessage(json.dumps(msg2).replace("'", "\""))
+                                player.sendMessage(str(msg2).replace("'", "\""))
                             if gift["type"] == 1:
                                 player.x_range += 1
                                 player.y_range += 1
@@ -261,7 +262,7 @@ class Player(WebSocket):
             if self.bombAmount > 0:
                 self.bombAmount -= 1
                 msg = {"msg_code": "bomb_amount", "amount": self.bombAmount}
-                self.sendMessage(json.dumps(msg).replace("'", "\""))
+                self.sendMessage(str(msg).replace("'", "\""))
                 bombermanServer.send_bomb_planted(self.x, self.y, self.x_range, self.y_range, self)
         if msg["msg_code"] == "disconnect":
             bombermanServer.remove_player(self)
