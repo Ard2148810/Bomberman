@@ -3,12 +3,15 @@ const CH_PLAYER = 'o';
 const CH_BOMB = '+';
 const CH_EMPTY = ' ';
 
+
 class BomberGame {
 
     constructor() {
         this.gameMap = null;
         this.players = new Map();
         this.bombs = new Map();
+        this.localPlayerKey = null;
+        this.defaultBombsAmount = null;
 
         //this.addPlayer(new Player("wwtwt", {"x": 1, "y": 1}, "Player1"));
         // this.addPlayer(new Player("wgetrhrthrwg", {"x": 11, "y": 11}, "Player2"));
@@ -20,7 +23,6 @@ class BomberGame {
     addMap = (gameMap) => {
         this.gameMap = gameMap;
         this.displayMapWrapper();
-        this.addInputHandling();
     }
 
     displayMapWrapper = () => {
@@ -34,50 +36,17 @@ class BomberGame {
 
     // Player
     addPlayer = (player) => {
-        this.players.set(player.nick, player);
-        this.displayMapWrapper();
+        this.players.set(player.uid, player);
+        if(player.isLocal) {
+            this.localPlayerKey = player.uid;
+        }
     }
 
     addBomb = (bomb) => {
         this.bombs.set(bomb.uid, bomb);
-        this.displayMapWrapper();
-    }
-
-    addInputHandling = () => {
-        document.addEventListener('keydown', e => {
-            if(e.repeat) {
-                return;
-            }
-            const player = this.players.get("Player1");
-            let x = 0, y = 0, correctKey = true;
-            switch (e.key) {
-                case "ArrowDown":
-                    y = 1;
-                    break;
-                case "ArrowUp":
-                    y = -1;
-                    break;
-                case "ArrowLeft":
-                    x = -1;
-                    break;
-                case  "ArrowRight":
-                    x = 1;
-                    break;
-                case " ":
-                    console.log("Space pressed, planting bomb not implemented");
-                    break;
-                default:
-                    correctKey = false;
-            }
-            if(correctKey) {
-                e.preventDefault();
-                console.log(`Key ${e.key} pressed`);
-            }
-            player.setPosition(player.position.x + x, player.position.y + y);
-            this.gameMap.displayMap(this.gameMap, this.gameMap.screen, this.players, this.bombs);
-        })
     }
 }
+
 
 class GameMap {
     constructor(screen, size) {
@@ -134,20 +103,27 @@ class GameMap {
 
         screen.innerText = mapContent;
     }
+
 }
 
+
 class GameObject {
+
     constructor(uid, position) {
         this.uid = uid;
         this.position = position;
     }
+
 }
 
 
 class Player extends GameObject {
-    constructor(uid, position, nick) {
+
+    constructor(uid, position, nick, bombsAmount, playerMovedHandler) {
         super(uid, position);
         this.nick = nick;
+        this.bombsAmount = bombsAmount;
+        this.addInputHandling(playerMovedHandler);
         console.log(`Player added at: ${position.x}, ${position.y}`);
     }
 
@@ -155,7 +131,44 @@ class Player extends GameObject {
         this.position.x = x;
         this.position.y = y;
     }
+
+    addInputHandling = (playerMovedHandler) => {
+        document.addEventListener('keydown', e => {
+            if(e.repeat) return;
+            let x = 0, y = 0, correctKey = true;
+            switch (e.key) {
+                case "ArrowDown":
+                    y = 1;
+                    break;
+                case "ArrowUp":
+                    y = -1;
+                    break;
+                case "ArrowLeft":
+                    x = -1;
+                    break;
+                case  "ArrowRight":
+                    x = 1;
+                    break;
+                case " ":
+                    console.log("Space pressed, planting bomb not implemented");
+                    break;
+                default:
+                    correctKey = false;
+            }
+            if(correctKey) {
+                e.preventDefault();
+                console.log(`Key ${e.key} pressed`);
+            }
+            if(playerMovedHandler !== undefined) {
+                playerMovedHandler(this.position.x + x, this.position.y + y, this.uid);
+            }
+            //player.setPosition(player.position.x + x, player.position.y + y);
+            //this.gameMap.displayMap(this.gameMap, this.gameMap.screen, this.players, this.bombs);
+        });
+    }
+
 }
+
 
 class Bomb extends GameObject {
     constructor(uid, position) {
@@ -167,11 +180,13 @@ class Bomb extends GameObject {
     }
 }
 
+
 class Box extends GameObject {
     constructor(uid, position) {
         super(uid, position);
     }
 }
+
 
 class Gift extends GameObject {
     constructor(uid, position) {
