@@ -71,12 +71,11 @@ window.onload = () => {
         game.defaultBombsAmount = msg.bombs_amount;
         score.innerText = msg.current_score;
         bombs.innerText = msg.bombs_amount;
-        const boxes = JSON.parse(msg.box);
+        const boxes = msg.box;
         boxes.forEach(box => {
             game.addBox(new Box(box.uid, {x: box.pos[0], y: box.pos[1]}));
         })
-        const gifts = JSON.parse(msg.gifts);
-        console.log(gifts);
+        const gifts = msg.gifts;
         gifts.forEach(gift => {
             game.addGift(new Gift(gift.uid, {x: gift.pos[0], y: gift.pos[1]}))
             // Against protocol because of incorrect protocol on the server
@@ -122,12 +121,7 @@ window.onload = () => {
     }
 
     let handleBombExploded = msg => {
-        if(msg.objects_hit.length === 0) {
-            game.bombExplode(msg.bomb_uid, msg.x_range, msg.y_range, msg.objects_hit);
-        } else {
-            game.bombExplode(msg.bomb_uid, msg.x_range, msg.y_range, JSON.parse(msg.objects_hit));
-            // Parsing because of server issues
-        }
+        game.bombExplode(msg.bomb_uid, msg.x_range, msg.y_range, msg.objects_hit);
         game.displayMapWrapper();
         game.explosionGroups.delete(msg.bomb_uid);
     }

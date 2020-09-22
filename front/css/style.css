@@ -13,3 +13,28 @@ pre {
 .big-text {
     font-size: 2rem;
 }
+
+.player1 {
+    color: yellow;
+}
+.player2 {
+    color: brown;
+}
+.player3 {
+    color: blueviolet;
+}
+.player4 {
+    color: dodgerblue;
+}
+
+.bomb {
+    color: red;
+}
+
+.gift {
+    color: greenyellow;
+}
+
+.box {
+    color: gray;
+}

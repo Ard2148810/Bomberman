@@ -123,22 +123,22 @@ class GameMap {
 
         // Add gifts to the map
         gifts.forEach(gift => {
-            tmpMap[gift.position.y][gift.position.x] = CH_GIFT;
+            tmpMap[gift.position.y][gift.position.x] = `<span class="gift">${CH_GIFT}</span>`;
         })
 
         // Add boxes to the map
         boxes.forEach(box => {
-            tmpMap[box.position.y][box.position.x] = CH_BOX;
+            tmpMap[box.position.y][box.position.x] = `<span class="box">${CH_BOX}</span>`;
         });
 
         // Add players to the map
         players.forEach(player => {
-            tmpMap[player.position.y][player.position.x] = CH_PLAYER;
+            tmpMap[player.position.y][player.position.x] = `<span class="player1">${CH_PLAYER}</span>`;
         });
 
         // Add bombs to the map
         bombs.forEach(bomb => {
-            tmpMap[bomb.position.y][bomb.position.x] = CH_BOMB;
+            tmpMap[bomb.position.y][bomb.position.x] = `<span class="bomb">${CH_BOMB}</span>`;
         });
 
         // Add explosions to the map
@@ -159,11 +159,15 @@ class GameMap {
             mapContent += genRow + "\n";
         });
 
-        screen.innerText = mapContent;
+        screen.innerHTML = mapContent;
     }
 
     explosionAllowed = (map, x, y) => {
         return (x > 0 && y > 0 && x < map[0].length && y < map.length && map[y][x] !== CH_WALL);
+    }
+
+    coloredChar = (ch, cssClass) => {
+        return `<span class=${cssClass}>${ch}</span>`;
     }
 
 }
