@@ -32,10 +32,10 @@ class ServerConnection {
                 this.msgHandlers.handleBombHasBeenPlanted(msg);
                 break;
             case "Bomb exploded":
-                console.log("^^^ UNHANDLED MESSAGE ^^^");
+                this.msgHandlers.handleBombExploded(msg);
                 break;
             case "current score":
-                console.log("^^^ UNHANDLED MESSAGE ^^^");
+                this.msgHandlers.handleCurrentScore(msg);
                 break;
             case "new_bomb_box":
                 console.log("^^^ UNHANDLED MESSAGE ^^^");

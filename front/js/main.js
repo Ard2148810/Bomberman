@@ -18,7 +18,9 @@ window.onload = () => {
             {
                 handleWelcomeMsg,
                 handlePlayerPos,
-                handleBombHasBeenPlanted
+                handleBombHasBeenPlanted,
+                handleBombExploded,
+                handleCurrentScore
             });   // Create connection
         if(serverConnection !== null) {
             connectBtn.disabled = true;
@@ -97,4 +99,13 @@ window.onload = () => {
         game.displayMapWrapper();
     }
 
+    let handleBombExploded = msg => {
+        game.bombExplode(msg.bomb_uid, msg.x_range, msg.y_range, msg.objects_hit);
+        game.displayMapWrapper();
+        game.explosionGroups.delete(msg.bomb_uid);
+    }
+
+    let handleCurrentScore = msg => {
+        score.innerText = msg.score;
+    }
 }
