@@ -9,6 +9,7 @@ window.onload = () => {
 
     const game = new BomberGame();
     let serverConnection;
+    let clientUID;
     disconnectBtn.disabled = true;
 
     connectBtn.onclick = e => {
@@ -68,16 +69,13 @@ window.onload = () => {
     let handleWelcomeMsg = msg => {
         game.addMap(new GameMap(screen, {x: msg.map_size_x, y: msg.map_size_y}));
         game.defaultBombsAmount = msg.bombs_amount;
-        game.addPlayer(new Player(
-            msg.client_uid,
-            {x: 3, y: 3},
-            msg.client_uid,
-            game.defaultBombsAmount,
-            sendPlayerMove,
-            sendPlayerPlantBomb)
-        );
         score.innerText = msg.current_score;
         bombs.innerText = msg.bombs_amount;
+        const boxes = JSON.parse(msg.box);
+        boxes.forEach(box => {
+            game.addBox(new Box(box.uid, {x: box.pos[0], y: box.pos[1]}));
+        })
+        clientUID = msg.client_uid;
     }
 
     let handlePlayerPos = msg => {
@@ -85,12 +83,23 @@ window.onload = () => {
         if(player !== undefined) {  // If player already exists in game
             player.setPosition(msg.x, msg.y);
         } else {    // Otherwise add him as a new one
-            const newPlayer = new Player(
-                msg.nick,
-                {x: msg.x, y: msg.y},
-                msg.nick,
-                game.defaultBombsAmount
-            );
+            let newPlayer = null;
+            if(msg.nick === nickInput.value) {
+                newPlayer = new Player(
+                    clientUID,
+                    {x: msg.x, y: msg.y},
+                    msg.nick,
+                    game.defaultBombsAmount,
+                    sendPlayerMove,
+                    sendPlayerPlantBomb);
+            } else {
+                newPlayer = new Player(
+                    msg.nick,
+                    {x: msg.x, y: msg.y},
+                    msg.nick,
+                    game.defaultBombsAmount
+                );
+            }
             game.addPlayer(newPlayer);
         }
         game.displayMapWrapper();
@@ -102,8 +111,8 @@ window.onload = () => {
         game.displayMapWrapper();
     }
 
-    let handleBombExploded = msg => {
-        game.bombExplode(msg.bomb_uid, msg.x_range, msg.y_range, msg.objects_hit);
+    let handleBombExploded = msg => {   // TODO: object_hit
+        game.bombExplode(msg.bomb_uid, msg.x_range, msg.y_range, JSON.parse(msg.objects_hit));
         game.displayMapWrapper();
         game.explosionGroups.delete(msg.bomb_uid);
     }
