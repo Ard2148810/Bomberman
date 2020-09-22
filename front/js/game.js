@@ -10,14 +10,7 @@ class BomberGame {
         this.gameMap = null;
         this.players = new Map();
         this.bombs = new Map();
-        this.localPlayerKey = null;
         this.defaultBombsAmount = null;
-
-        //this.addPlayer(new Player("wwtwt", {"x": 1, "y": 1}, "Player1"));
-        // this.addPlayer(new Player("wgetrhrthrwg", {"x": 11, "y": 11}, "Player2"));
-        // this.addBomb(new Bomb("123bmb", {"x": 1, "y": 1}));
-        // this.players.get("Player1").setPosition(2, 3);
-        // this.displayMap(this.map, screen);
     }
 
     addMap = (gameMap) => {
@@ -37,9 +30,6 @@ class BomberGame {
     // Player
     addPlayer = (player) => {
         this.players.set(player.uid, player);
-        if(player.isLocal) {
-            this.localPlayerKey = player.uid;
-        }
     }
 
     addBomb = (bomb) => {
@@ -119,11 +109,11 @@ class GameObject {
 
 class Player extends GameObject {
 
-    constructor(uid, position, nick, bombsAmount, playerMovedHandler) {
+    constructor(uid, position, nick, bombsAmount, playerMovedHandler, plantBombHandler) {
         super(uid, position);
         this.nick = nick;
         this.bombsAmount = bombsAmount;
-        this.addInputHandling(playerMovedHandler);
+        this.addInputHandling(playerMovedHandler, plantBombHandler);
         console.log(`Player added at: ${position.x}, ${position.y}`);
     }
 
@@ -132,7 +122,7 @@ class Player extends GameObject {
         this.position.y = y;
     }
 
-    addInputHandling = (playerMovedHandler) => {
+    addInputHandling = (playerMovedHandler, plantBombHandler) => {
         document.addEventListener('keydown', e => {
             if(e.repeat) return;
             let x = 0, y = 0, correctKey = true;
@@ -146,24 +136,22 @@ class Player extends GameObject {
                 case "ArrowLeft":
                     x = -1;
                     break;
-                case  "ArrowRight":
+                case "ArrowRight":
                     x = 1;
                     break;
                 case " ":
-                    console.log("Space pressed, planting bomb not implemented");
+                    if(plantBombHandler !== undefined) {plantBombHandler(this.uid);console.log("Bomb planted");}
                     break;
                 default:
                     correctKey = false;
             }
             if(correctKey) {
                 e.preventDefault();
-                console.log(`Key ${e.key} pressed`);
+                if(playerMovedHandler !== undefined && e.key !== " ") {
+                    playerMovedHandler(this.position.x + x, this.position.y + y, this.uid);
+                }
             }
-            if(playerMovedHandler !== undefined) {
-                playerMovedHandler(this.position.x + x, this.position.y + y, this.uid);
-            }
-            //player.setPosition(player.position.x + x, player.position.y + y);
-            //this.gameMap.displayMap(this.gameMap, this.gameMap.screen, this.players, this.bombs);
+
         });
     }
 
