@@ -41,7 +41,7 @@ class ServerConnection {
                 console.log("^^^ UNHANDLED MESSAGE ^^^");
                 break;
             case "bomb_amount":
-                console.log("^^^ UNHANDLED MESSAGE ^^^");
+                this.msgHandlers.handleBombAmount(msg);
                 break;
 
         }
