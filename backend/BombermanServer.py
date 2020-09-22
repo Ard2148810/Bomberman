@@ -155,7 +155,7 @@ class BombermanServer:
                     return objects_hit
 
             for player in self.players:
-                if (player.x, player.y) == blastPos:
+                if [player.x, player.y] == blastPos:
                     player.sendMessage("you died")
                     self.players.remove(player)
                     objects_hit.append(player.name)
