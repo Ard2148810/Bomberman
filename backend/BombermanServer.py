@@ -47,7 +47,7 @@ class BombermanServer:
         self.boxAmount = 0
         self.players = []
         self.box = []
-        self.giftsAmount = 2
+        self.giftsAmount = 15
         self.gifts = []
         self.playersPositions = [[1, 1], [1, self.map_size_y-1], [self.map_size_x-1, 1], [self.map_size_x-1, self.map_size_y-1]]
         self.voidBoxes = [[1, 2], [2, 1], [self.map_size_x - 2, 1], [self.map_size_x-1, 2], [1, self.map_size_y - 2],
@@ -114,8 +114,8 @@ class BombermanServer:
         msg["map_size_y"] = self.map_size_y + 1
         msg["bombs_amount"] = self.bombs_amount
         msg["current_score"] = 0
-        msg["box"] = str(self.box)
-        msg["gifts"] = str(self.gifts)
+        msg["box"] = self.box
+        msg["gifts"] = self.gifts
         for player in self.players:
             msg["client_uid"] = player.name
             print(str(msg).replace("'", "\""))
