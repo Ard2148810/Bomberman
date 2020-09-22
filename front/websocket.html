@@ -7,6 +7,7 @@
 </head>
 <body>
     <script type="text/javascript" src="js/game.js"></script>
+    <script type="text/javascript" src="js/connection.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
     <div id="output"></div>
 
@@ -16,23 +17,23 @@
                 TEST RAW JSON REQUESTS, RESPONSES IN CONSOLE [DEBUG ONLY]:
                 <input type="text" name="debugRequests">
             </label>
-            <input type="button" name="sendButton" value="Send" onClick="sendText();">
+            <input id="sendBtn" type="button" name="sendButton" value="Send" onClick="sendText();">
         </div>
         <div>
             <label>
                 Nickname
-                <input type="text" name="inputNickname" value="UnnamedPlayer">
+                <input id="nickInput" type="text" name="inputNickname" value="UnnamedPlayer">
             </label>
         </div>
         <div>
             <label>
                 Server address:
-                <input type="text" name="inputUrl" value="ws://localhost:8000/">
+                <input id="urlInput" type="text" name="inputUrl" value="ws://localhost:8000/">
             </label>
         </div>
         <div>
-            <input type="button" name="disconnectButton" value="Disconnect" onClick="doDisconnect();">
-            <input type="button" name="connectButton" value="Connect" onClick="doConnect();">
+            <input id="disconnectBtn" type="button" name="disconnectButton" value="Disconnect">
+            <input id="connectBtn" type="button" name="connectButton" value="Connect">
         </div>
     </form>
     <div id="game">
