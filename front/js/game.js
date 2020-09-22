@@ -5,20 +5,87 @@ const CH_EMPTY = ' ';
 
 class BomberGame {
 
-    constructor(screen, size) {
-        this.screen = screen;
-        this.map = this.generateMap(size.x, size.y);
+    constructor() {
+        this.gameMap = null;
         this.players = new Map();
         this.bombs = new Map();
 
-        this.addPlayer(new Player("Player1", {"x": 1, "y": 1}));
-        this.addPlayer(new Player("Player2", {"x": 11, "y": 11}));
-        this.addBomb(new Bomb("123bmb", {"x": 1, "y": 1}));
-        this.players.get("Player1").setPosition(2, 3);
-        this.displayMap(this.map, screen);
+        //this.addPlayer(new Player("wwtwt", {"x": 1, "y": 1}, "Player1"));
+        // this.addPlayer(new Player("wgetrhrthrwg", {"x": 11, "y": 11}, "Player2"));
+        // this.addBomb(new Bomb("123bmb", {"x": 1, "y": 1}));
+        // this.players.get("Player1").setPosition(2, 3);
+        // this.displayMap(this.map, screen);
     }
 
-    // Map
+    addMap = (gameMap) => {
+        this.gameMap = gameMap;
+        this.displayMapWrapper();
+        this.addInputHandling();
+    }
+
+    displayMapWrapper = () => {
+        if(this.gameMap === null) {
+            console.log("Display wrapper: gameMap is null, cannot display the map");
+        } else {
+            this.gameMap.displayMap(this.gameMap.map, this.gameMap.screen, this.players, this.bombs);
+        }
+    }
+
+
+    // Player
+    addPlayer = (player) => {
+        this.players.set(player.nick, player);
+        this.displayMapWrapper();
+    }
+
+    addBomb = (bomb) => {
+        this.bombs.set(bomb.uid, bomb);
+        this.displayMapWrapper();
+    }
+
+    addInputHandling = () => {
+        document.addEventListener('keydown', e => {
+            if(e.repeat) {
+                return;
+            }
+            const player = this.players.get("Player1");
+            let x = 0, y = 0, correctKey = true;
+            switch (e.key) {
+                case "ArrowDown":
+                    y = 1;
+                    break;
+                case "ArrowUp":
+                    y = -1;
+                    break;
+                case "ArrowLeft":
+                    x = -1;
+                    break;
+                case  "ArrowRight":
+                    x = 1;
+                    break;
+                case " ":
+                    console.log("Space pressed, planting bomb not implemented");
+                    break;
+                default:
+                    correctKey = false;
+            }
+            if(correctKey) {
+                e.preventDefault();
+                console.log(`Key ${e.key} pressed`);
+            }
+            player.setPosition(player.position.x + x, player.position.y + y);
+            this.gameMap.displayMap(this.gameMap, this.gameMap.screen, this.players, this.bombs);
+        })
+    }
+}
+
+class GameMap {
+    constructor(screen, size) {
+        this.screen = screen;
+        this.size = size;
+        this.map = this.generateMap(this.size.x, this.size.y);
+    }
+
     generateMap = (x, y) => {
         let map = [];
         for(let i = 0; i < y; i++) {
@@ -33,7 +100,7 @@ class BomberGame {
         return map;
     }
 
-    displayMap = (map, screen) => {
+    displayMap = (map, screen, players, bombs) => {
         // Copy the map
         let tmpMap = [];
         map.map(row => {
@@ -47,13 +114,13 @@ class BomberGame {
         let mapContent = "";
 
         // Add players to the map
-        this.players.forEach(player => {
-            tmpMap[player.position.x][player.position.y] = CH_PLAYER;
+        players.forEach(player => {
+            tmpMap[player.position.y][player.position.x] = CH_PLAYER;
         });
 
         // Add bombs to the map
-        this.bombs.forEach(bomb => {
-            tmpMap[bomb.position.x][bomb.position.y] = CH_BOMB;
+        bombs.forEach(bomb => {
+            tmpMap[bomb.position.y][bomb.position.x] = CH_BOMB;
         });
 
         // Display the map
@@ -67,23 +134,20 @@ class BomberGame {
 
         screen.innerText = mapContent;
     }
+}
 
-    // Player
-    addPlayer = (player) => {
-        this.players.set(player.nick, player);
-        this.displayMap(this.map, this.screen);
-    }
-
-    addBomb = (bomb) => {
-        this.bombs.set(bomb.uid, bomb);
-        this.displayMap(this.map, this.screen);
+class GameObject {
+    constructor(uid, position) {
+        this.uid = uid;
+        this.position = position;
     }
 }
 
-class Player {
-    constructor(nick, position) {
+
+class Player extends GameObject {
+    constructor(uid, position, nick) {
+        super(uid, position);
         this.nick = nick;
-        this.position = position;   // {x, y}
         console.log(`Player added at: ${position.x}, ${position.y}`);
     }
 
@@ -93,13 +157,24 @@ class Player {
     }
 }
 
-class Bomb {
+class Bomb extends GameObject {
     constructor(uid, position) {
-        this.uid = uid;
-        this.position = position;
+        super(uid, position);
     }
 
     explode = () => {
         console.log("Explosion, but not implemented");
+    }
+}
+
+class Box extends GameObject {
+    constructor(uid, position) {
+        super(uid, position);
+    }
+}
+
+class Gift extends GameObject {
+    constructor(uid, position) {
+        super(uid, position);
     }
 }
