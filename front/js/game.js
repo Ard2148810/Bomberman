@@ -142,9 +142,10 @@ class GameMap {
 
         // Add explosions to the map
         explosionGroups.forEach(group => {
+            console.log(group);
             group.explosions.forEach(explosion => {
                 if(this.explosionAllowed(map, explosion.x, explosion.y)) {
-                    tmpMap[explosion.y][explosion.x] = CH_EXPLOSION;
+                    tmpMap[explosion.y][explosion.x] = `<span class="bomb">${CH_EXPLOSION}</span>`
                 }
             })
         });
@@ -163,10 +164,6 @@ class GameMap {
 
     explosionAllowed = (map, x, y) => {
         return (x > 0 && y > 0 && x < map[0].length && y < map.length && map[y][x] !== CH_WALL);
-    }
-
-    coloredChar = (ch, cssClass) => {
-        return `<span class=${cssClass}>${ch}</span>`;
     }
 
 }
@@ -189,7 +186,7 @@ class Player extends GameObject {
         this.nick = nick;
         this.bombsAmount = bombsAmount;
         this.addInputHandling(playerMovedHandler, plantBombHandler);
-        console.log(`Player added at: uid: ${uid}; nick: ${nick}; position: ${position.x}, ${position.y}`);
+        console.log(`Player added: uid: ${uid}; nick: ${nick}; position: ${position.x}, ${position.y}`);
     }
 
     setPosition = (x, y) => {
