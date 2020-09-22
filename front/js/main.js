@@ -2,13 +2,13 @@ window.onload = () => {
     const screen = document.getElementById('display');
     const connectBtn = document.getElementById("connectBtn");
     const disconnectBtn = document.getElementById("disconnectBtn");
-    disconnectBtn.disabled = true;
     const urlInput = document.getElementById("urlInput");
     const nickInput = document.getElementById("nickInput");
     const score = document.getElementById("scoreValue");
 
     const game = new BomberGame();
     let serverConnection;
+    disconnectBtn.disabled = true;
 
     connectBtn.onclick = e => {
         serverConnection = new ServerConnection(
@@ -16,9 +16,10 @@ window.onload = () => {
             nickInput.value,
             onclose,
             {
-            handleWelcomeMsg,
-            handlePlayerPos
-        });   // Create connection
+                handleWelcomeMsg,
+                handlePlayerPos,
+                handleBombHasBeenPlanted
+            });   // Create connection
         if(serverConnection !== null) {
             connectBtn.disabled = true;
             disconnectBtn.disabled = false;
@@ -50,6 +51,14 @@ window.onload = () => {
         serverConnection.sendMessage(msg);
     }
 
+    let sendPlayerPlantBomb = (uid) => {
+        const msg = {
+            msg_code: "player_plant_bomb",
+            uid: uid
+        };
+        serverConnection.sendMessage(msg);
+    }
+
     // Messages handling
 
     let handleWelcomeMsg = msg => {
@@ -60,7 +69,8 @@ window.onload = () => {
             {x: 3, y: 3},
             msg.client_uid,
             game.defaultBombsAmount,
-            sendPlayerMove)
+            sendPlayerMove,
+            sendPlayerPlantBomb)
         );
         score.innerText = msg.current_score;
     }
@@ -69,7 +79,6 @@ window.onload = () => {
         const player = game.players.get(msg.nick);
         if(player !== undefined) {  // If player already exists in game
             player.setPosition(msg.x, msg.y);
-            console.log(`Set position of ${player.nick} to ${msg.x}, ${msg.y}`);
         } else {    // Otherwise add him as a new one
             const newPlayer = new Player(
                 msg.nick,
@@ -82,5 +91,10 @@ window.onload = () => {
         game.displayMapWrapper();
     }
 
+    let handleBombHasBeenPlanted = msg => {
+        const bomb = new Bomb(msg.bomb_uid, {x: msg.x, y: msg.y});
+        game.addBomb(bomb);
+        game.displayMapWrapper();
+    }
 
 }

@@ -29,19 +29,19 @@ class ServerConnection {
                 this.msgHandlers.handlePlayerPos(msg);
                 break;
             case "Bomb has been planted":
-                console.log("MSG");
+                this.msgHandlers.handleBombHasBeenPlanted(msg);
                 break;
             case "Bomb exploded":
-                console.log("MSG");
+                console.log("^^^ UNHANDLED MESSAGE ^^^");
                 break;
             case "current score":
-                console.log("MSG");
+                console.log("^^^ UNHANDLED MESSAGE ^^^");
                 break;
             case "new_bomb_box":
-                console.log("MSG");
+                console.log("^^^ UNHANDLED MESSAGE ^^^");
                 break;
             case "bomb_amount":
-                console.log("MSG");
+                console.log("^^^ UNHANDLED MESSAGE ^^^");
                 break;
 
         }
