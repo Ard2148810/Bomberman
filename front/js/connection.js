@@ -1,9 +1,11 @@
 class ServerConnection {
-    constructor(url, nick) {
+    constructor(url, nick, onclose, msgHandlers) {
         this.ws = new WebSocket(url);
         this.nick = nick;
         this.ws.onopen = this.onopen;
         this.ws.onmessage = this.onmessage;
+        this.ws.onclose = onclose;
+        this.msgHandlers = msgHandlers;
     }
 
     onopen = (e) => {
@@ -21,10 +23,10 @@ class ServerConnection {
 
         switch (msg.msg_code) {
             case "welcome_msg":
-                console.log("MSG");
+                this.msgHandlers.handleWelcomeMsg(msg);
                 break;
             case "player_pos":
-                console.log("MSG");
+                this.msgHandlers.handlePlayerPos(msg);
                 break;
             case "Bomb has been planted":
                 console.log("MSG");
@@ -50,6 +52,11 @@ class ServerConnection {
             msg_code: "disconnect",
             uid: uid
         }
+        this.sendMessage(msg);
+        this.ws.close();
+    }
+
+    sendMessage = (msg) => {
         this.ws.send(JSON.stringify(msg));
     }
 }
