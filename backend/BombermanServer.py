@@ -14,8 +14,8 @@ from random import randrange
 
 from backend.library.SimpleWebSocketServer import WebSocket, SimpleSSLWebSocketServer, SimpleWebSocketServer
 
-bombTickingTime = 5
-moveCooldown = 0.5
+bombTickingTime = 10
+moveCooldown = 1
 
 
 class Bomb:
@@ -44,18 +44,19 @@ class BombermanServer:
         self.map_size_y = 10
         self.bombs_amount = 1
         self.bombs = []
-        self.boxAmount = 1
+        self.boxAmount = 0
         self.players = []
         self.box = []
-        self.giftsAmount = 5
+        self.giftsAmount = 2
         self.gifts = []
-        self.playersPositions = [(1, 1), (1, self.map_size_y-1), (self.map_size_x-1, 1), (self.map_size_x-1, self.map_size_y-1)]
-        self.voidBoxes = [(0, 1), (1, 0), (self.map_size_x - 1, 0), (self.map_size_x, 1), (0, self.map_size_y - 1),
-                         (1, self.map_size_y), (self.map_size_x - 1, self.map_size_y),
-                         (self.map_size_x, self.map_size_x - 1)]
+        self.playersPositions = [[1, 1], [1, self.map_size_y-1], [self.map_size_x-1, 1], [self.map_size_x-1, self.map_size_y-1]]
+        self.voidBoxes = [[1, 2], [2, 1], [self.map_size_x - 2, 1], [self.map_size_x-1, 2], [1, self.map_size_y - 2],
+                         [2, self.map_size_y-1], [self.map_size_x - 2, self.map_size_y-1],
+                         [self.map_size_x-1, self.map_size_y - 2]]
         self.standardBoxes = []
         self.generate_standardBoxes()
         self.voidBoxes.append(self.standardBoxes)
+
         print (self.standardBoxes)
 
     def generate_standardBoxes(self):
@@ -67,27 +68,26 @@ class BombermanServer:
         # self.send_msg_to_all_players("players has connected: ")
         print(self.players.__len__())
         if self.players.__len__() == 2:
-            self.players[0].x = self.playersPositions[0][0]
-            self.players[0].y = self.playersPositions[0][1]
-            self.players[1].x = self.playersPositions[1][0]
-            self.players[1].y = self.playersPositions[1][1]
+            for i in range(0,self.players.__len__()):
+                self.players[i].x = self.playersPositions[i][0]
+                self.players[i].y = self.playersPositions[i][1]
 
             self.send_welcome_msg()
             threading.Thread(target=self.send_positions).start()
 
     def send_msg_to_all_players(self, msg):
-        #print(json.dumps(msg).replace("'", "\""))
+        print(str(msg).replace("'", "\""))
         for player in self.players:
-            player.sendMessage(json.dumps(msg).replace("'", "\""))
+            player.sendMessage(str(msg).replace("'", "\""))
 
     def generate_gifts(self):
         for i in range(0, self.giftsAmount):
-            giftX=randrange(self.map_size_x)
-            giftY=randrange(self.map_size_y)
-            if (giftX,giftY) not in self.standardBoxes:
+            giftX=randrange(1,self.map_size_x-1)
+            giftY=randrange(1,self.map_size_y-1)
+            if [giftX,giftY] not in self.standardBoxes:
                 self.gifts.append(
                     {
-                        "uid": str(i),
+                        "uid": str(uuid.uuid4()),
                         "pos": [giftX, giftY],
                         "type": randrange(2)
                     }
@@ -96,12 +96,12 @@ class BombermanServer:
 
     def generate_boxes(self):
         for i in range(0, self.boxAmount):
-            generatedCoords = [randrange(self.map_size_x), randrange(self.map_size_y)]
+            generatedCoords = [randrange(1,self.map_size_x), randrange(1,self.map_size_y)]
             if generatedCoords in self.voidBoxes or generatedCoords in self.playersPositions or generatedCoords in self.standardBoxes:
                 continue
             self.box.append(
                 {
-                    "uid": str(i),
+                    "uid": str(uuid.uuid4()),
                     "pos": generatedCoords
                 }
             )
@@ -114,11 +114,12 @@ class BombermanServer:
         msg["map_size_y"] = self.map_size_y + 1
         msg["bombs_amount"] = self.bombs_amount
         msg["current_score"] = 0
-        msg["box"] = json.dumps(self.box)
-        msg["gifts"] = json.dumps(self.gifts)
+        msg["box"] = str(self.box)
+        msg["gifts"] = str(self.gifts)
         for player in self.players:
             msg["client_uid"] = player.name
-            player.sendMessage(json.dumps(msg).replace("'", "\""))
+            print(str(msg).replace("'", "\""))
+            player.sendMessage(str(msg).replace("'", "\""))
 
 
     def add_new_player(self, player):
@@ -139,9 +140,9 @@ class BombermanServer:
         objects_hit = []
         for i in blastRange:
             if mode == "x":
-                blastPos = (i, bomb.y)
+                blastPos = [i, bomb.y]
             else:
-                blastPos = (bomb.x, i)
+                blastPos = [bomb.x, i]
             for standardBox in self.standardBoxes:
                 if standardBox == blastPos:
                     return objects_hit
@@ -150,17 +151,17 @@ class BombermanServer:
             for box in self.box:
                 if box["pos"] == blastPos:
                     self.box.remove(box)
-                    objects_hit.append(box)
+                    objects_hit.append(box["uid"])
                     return objects_hit
 
             for player in self.players:
                 if (player.x, player.y) == blastPos:
                     player.sendMessage("you died")
                     self.players.remove(player)
-                    objects_hit.append({"player": player.name})
+                    objects_hit.append(player.name)
                     bomb.player.score += 1
                     msg = {"msg_code": "current score", "score": bomb.player.score}
-                    bomb.player.sendMessage(json.dumps(msg).replace("'", "\""))
+                    bomb.player.sendMessage(str(msg).replace("'", "\""))
         return objects_hit
 
     def send_bomb_exploded(self, bomb):
@@ -184,7 +185,8 @@ class BombermanServer:
             "y_range": bomb.y_range,
             "objects_hit": objects_hit
         }
-        print(msg)
+
+
         self.send_msg_to_all_players(msg)
 
     def send_positions(self):
@@ -193,7 +195,7 @@ class BombermanServer:
             time.sleep(moveCooldown)
             for player in self.players:
                 if player.hasNextMove:
-                    playerPos = (player.next_x, player.next_y)
+                    playerPos = [player.next_x, player.next_y]
                     player.hasNextMove = False
                     player.x = player.next_x
                     player.y = player.next_y
@@ -204,7 +206,7 @@ class BombermanServer:
                                 player.maxBombs += 1
                                 player.bombAmount += 1
                                 msg2 = {"msg_code": "bomb_amount", "amount": player.bombAmount}
-                                player.sendMessage(json.dumps(msg2).replace("'", "\""))
+                                player.sendMessage(str(msg2).replace("'", "\""))
                             if gift["type"] == 1:
                                 player.x_range += 1
                                 player.y_range += 1
@@ -260,7 +262,7 @@ class Player(WebSocket):
             if self.bombAmount > 0:
                 self.bombAmount -= 1
                 msg = {"msg_code": "bomb_amount", "amount": self.bombAmount}
-                self.sendMessage(json.dumps(msg).replace("'", "\""))
+                self.sendMessage(str(msg).replace("'", "\""))
                 bombermanServer.send_bomb_planted(self.x, self.y, self.x_range, self.y_range, self)
         if msg["msg_code"] == "disconnect":
             bombermanServer.remove_player(self)
