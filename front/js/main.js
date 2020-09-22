@@ -75,6 +75,12 @@ window.onload = () => {
         boxes.forEach(box => {
             game.addBox(new Box(box.uid, {x: box.pos[0], y: box.pos[1]}));
         })
+        const gifts = JSON.parse(msg.gifts);
+        console.log(gifts);
+        gifts.forEach(gift => {
+            game.addGift(new Gift(gift.uid, {x: gift.pos[0], y: gift.pos[1]}))
+            // Against protocol because of incorrect protocol on the server
+        })
         clientUID = msg.client_uid;
     }
 
@@ -82,6 +88,10 @@ window.onload = () => {
         const player = game.players.get(msg.nick);
         if(player !== undefined) {  // If player already exists in game
             player.setPosition(msg.x, msg.y);
+            const giftKey = game.isStandingOnGift(player.position, game.gifts);
+            if(giftKey !== null) {
+                game.deleteObject(giftKey);
+            }
         } else {    // Otherwise add him as a new one
             let newPlayer = null;
             if(msg.nick === nickInput.value) {
@@ -111,8 +121,13 @@ window.onload = () => {
         game.displayMapWrapper();
     }
 
-    let handleBombExploded = msg => {   // TODO: object_hit
-        game.bombExplode(msg.bomb_uid, msg.x_range, msg.y_range, JSON.parse(msg.objects_hit));
+    let handleBombExploded = msg => {
+        if(msg.objects_hit.length === 0) {
+            game.bombExplode(msg.bomb_uid, msg.x_range, msg.y_range, msg.objects_hit);
+        } else {
+            game.bombExplode(msg.bomb_uid, msg.x_range, msg.y_range, JSON.parse(msg.objects_hit));
+            // Parsing because of server issues
+        }
         game.displayMapWrapper();
         game.explosionGroups.delete(msg.bomb_uid);
     }
