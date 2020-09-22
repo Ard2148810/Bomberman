@@ -54,7 +54,6 @@ class BomberGame {
         const explosion = bomb.explode(xRange, yRange);
         this.explosionGroups.set(explosion.uid, explosion);
         this.bombs.delete(bombKey);
-        console.log(objectsHit);
         objectsHit.forEach(this.deleteObject);
     }
 
