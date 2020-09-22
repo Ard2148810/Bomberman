@@ -2,6 +2,7 @@ const CH_WALL = 'x';
 const CH_PLAYER = 'o';
 const CH_BOMB = '+';
 const CH_EMPTY = ' ';
+const CH_EXPLOSION = '-';
 
 
 class BomberGame {
@@ -10,6 +11,7 @@ class BomberGame {
         this.gameMap = null;
         this.players = new Map();
         this.bombs = new Map();
+        this.explosionGroups = new Map();
         this.defaultBombsAmount = null;
     }
 
@@ -22,7 +24,7 @@ class BomberGame {
         if(this.gameMap === null) {
             console.log("Display wrapper: gameMap is null, cannot display the map");
         } else {
-            this.gameMap.displayMap(this.gameMap.map, this.gameMap.screen, this.players, this.bombs);
+            this.gameMap.displayMap(this.gameMap.map, this.gameMap.screen, this.players, this.bombs, this.explosionGroups);
         }
     }
 
@@ -35,10 +37,18 @@ class BomberGame {
     addBomb = (bomb) => {
         this.bombs.set(bomb.uid, bomb);
     }
+
+    bombExplode = (bombKey, xRange, yRange, objectsHit) => {
+        const bomb = this.bombs.get(bombKey);
+        const explosion = bomb.explode(xRange, yRange);
+        this.explosionGroups.set(explosion.uid, explosion);
+        this.bombs.delete(bombKey);
+    }
 }
 
 
 class GameMap {
+
     constructor(screen, size) {
         this.screen = screen;
         this.size = size;
@@ -59,7 +69,7 @@ class GameMap {
         return map;
     }
 
-    displayMap = (map, screen, players, bombs) => {
+    displayMap = (map, screen, players, bombs, explosionGroups) => {
         // Copy the map
         let tmpMap = [];
         map.map(row => {
@@ -82,6 +92,15 @@ class GameMap {
             tmpMap[bomb.position.y][bomb.position.x] = CH_BOMB;
         });
 
+        // Add explosions to the map
+        explosionGroups.forEach(group => {
+            group.explosions.forEach(explosion => {
+                if(this.explosionAllowed(map, explosion.x, explosion.y)) {
+                    tmpMap[explosion.y][explosion.x] = CH_EXPLOSION;
+                }
+            })
+        });
+
         // Display the map
         tmpMap.forEach(row => {
             let genRow = "";
@@ -92,6 +111,10 @@ class GameMap {
         });
 
         screen.innerText = mapContent;
+    }
+
+    explosionAllowed(map, x, y) {
+        return (map[y][x] !== CH_WALL && x > 0 && y > 0 && x < map[0].length && y < map.length);
     }
 
 }
@@ -140,7 +163,7 @@ class Player extends GameObject {
                     x = 1;
                     break;
                 case " ":
-                    if(plantBombHandler !== undefined) {plantBombHandler(this.uid);console.log("Bomb planted");}
+                    if(plantBombHandler !== undefined) plantBombHandler(this.uid);
                     break;
                 default:
                     correctKey = false;
@@ -163,8 +186,8 @@ class Bomb extends GameObject {
         super(uid, position);
     }
 
-    explode = () => {
-        console.log("Explosion, but not implemented");
+    explode = (xRange, yRange) => {
+        return new ExplosionGroup(this.uid, this.position, xRange, yRange);
     }
 }
 
@@ -179,5 +202,28 @@ class Box extends GameObject {
 class Gift extends GameObject {
     constructor(uid, position) {
         super(uid, position);
+    }
+}
+
+class ExplosionGroup extends GameObject {
+
+    constructor(uid, position, xRange, yRange) {
+        super(uid, position);
+        this.explosions = this.generateExplosions(position, xRange, yRange);
+
+    }
+
+    generateExplosions = (position, x, y) => {
+        let expl = [];
+
+        expl.push( {x: position.x, y: position.y} );
+        for(let i = position.x - x; i <= position.x + x; i++) { // Horizontal explosions
+            if(i !== position.y) expl.push({x: i, y: position.y});
+        }
+        for(let i = position.y - y; i <= position.y + y; i++) { // Vertical explosions
+            if(i !== position.x) expl.push({x: position.x, y: i});
+        }
+
+        return expl;
     }
 }
