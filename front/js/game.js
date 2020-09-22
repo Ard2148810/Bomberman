@@ -4,6 +4,7 @@ const CH_BOMB = '+';
 const CH_EMPTY = ' ';
 const CH_EXPLOSION = '·';
 const CH_BOX = 'π'
+const CH_GIFT = 'e';
 
 
 class BomberGame {
@@ -14,6 +15,7 @@ class BomberGame {
         this.bombs = new Map();
         this.explosionGroups = new Map();
         this.boxes = new Map();
+        this.gifts = new Map();
         this.defaultBombsAmount = null;
     }
 
@@ -32,7 +34,8 @@ class BomberGame {
                 this.gameMap.screen,
                 this.players,
                 this.bombs,
-                this.explosionGroups);
+                this.explosionGroups,
+                this.gifts);
         }
     }
 
@@ -52,16 +55,34 @@ class BomberGame {
         this.explosionGroups.set(explosion.uid, explosion);
         this.bombs.delete(bombKey);
         console.log(objectsHit);
-        objectsHit.forEach(this.deleteBox);
+        objectsHit.forEach(this.deleteObject);
     }
 
     addBox = (box) => {
         this.boxes.set(box.uid, box);
     }
 
-    deleteBox = (key) => {
-        this.boxes.delete(key);
+    addGift = (gift) => {
+        this.gifts.set(gift.uid, gift);
     }
+
+    deleteObject = (key) => {
+        this.boxes.delete(key);
+        this.gifts.delete(key);
+        this.players.delete(key);
+    }
+
+    isStandingOnGift = (position, gifts) => {   // Returns key of the gift that the player is standing on
+        let found = null;
+        gifts.forEach((gift, key) => {
+            const gPos = gift.position;
+            if(position.x === gPos.x && position.y === gPos.y) {
+                found = key;
+            }
+        });
+        return found;
+    }
+
 }
 
 
@@ -87,7 +108,7 @@ class GameMap {
         return map;
     }
 
-    displayMap = (map, boxes, screen, players, bombs, explosionGroups) => {
+    displayMap = (map, boxes, screen, players, bombs, explosionGroups, gifts) => {
         // Copy the map
         let tmpMap = [];
         map.map(row => {
@@ -99,6 +120,11 @@ class GameMap {
         });
 
         let mapContent = "";
+
+        // Add gifts to the map
+        gifts.forEach(gift => {
+            tmpMap[gift.position.y][gift.position.x] = CH_GIFT;
+        })
 
         // Add boxes to the map
         boxes.forEach(box => {
@@ -136,7 +162,7 @@ class GameMap {
         screen.innerText = mapContent;
     }
 
-    explosionAllowed(map, x, y) {
+    explosionAllowed = (map, x, y) => {
         return (x > 0 && y > 0 && x < map[0].length && y < map.length && map[y][x] !== CH_WALL);
     }
 
