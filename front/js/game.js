@@ -2,7 +2,8 @@ const CH_WALL = 'x';
 const CH_PLAYER = 'o';
 const CH_BOMB = '+';
 const CH_EMPTY = ' ';
-const CH_EXPLOSION = '-';
+const CH_EXPLOSION = '·';
+const CH_BOX = 'π'
 
 
 class BomberGame {
@@ -12,6 +13,7 @@ class BomberGame {
         this.players = new Map();
         this.bombs = new Map();
         this.explosionGroups = new Map();
+        this.boxes = new Map();
         this.defaultBombsAmount = null;
     }
 
@@ -24,14 +26,20 @@ class BomberGame {
         if(this.gameMap === null) {
             console.log("Display wrapper: gameMap is null, cannot display the map");
         } else {
-            this.gameMap.displayMap(this.gameMap.map, this.gameMap.screen, this.players, this.bombs, this.explosionGroups);
+            this.gameMap.displayMap(
+                this.gameMap.map,
+                this.boxes,
+                this.gameMap.screen,
+                this.players,
+                this.bombs,
+                this.explosionGroups);
         }
     }
 
 
     // Player
     addPlayer = (player) => {
-        this.players.set(player.uid, player);
+        this.players.set(player.nick, player);  // Using nickname instead of UID because of server incompatibility
     }
 
     addBomb = (bomb) => {
@@ -43,6 +51,16 @@ class BomberGame {
         const explosion = bomb.explode(xRange, yRange);
         this.explosionGroups.set(explosion.uid, explosion);
         this.bombs.delete(bombKey);
+        console.log(objectsHit);
+        objectsHit.forEach(this.deleteBox);
+    }
+
+    addBox = (box) => {
+        this.boxes.set(box.uid, box);
+    }
+
+    deleteBox = (key) => {
+        this.boxes.delete(key);
     }
 }
 
@@ -69,7 +87,7 @@ class GameMap {
         return map;
     }
 
-    displayMap = (map, screen, players, bombs, explosionGroups) => {
+    displayMap = (map, boxes, screen, players, bombs, explosionGroups) => {
         // Copy the map
         let tmpMap = [];
         map.map(row => {
@@ -81,6 +99,11 @@ class GameMap {
         });
 
         let mapContent = "";
+
+        // Add boxes to the map
+        boxes.forEach(box => {
+            tmpMap[box.position.y][box.position.x] = CH_BOX;
+        });
 
         // Add players to the map
         players.forEach(player => {
@@ -114,7 +137,7 @@ class GameMap {
     }
 
     explosionAllowed(map, x, y) {
-        return (map[y][x] !== CH_WALL && x > 0 && y > 0 && x < map[0].length && y < map.length);
+        return (x > 0 && y > 0 && x < map[0].length && y < map.length && map[y][x] !== CH_WALL);
     }
 
 }
@@ -137,7 +160,7 @@ class Player extends GameObject {
         this.nick = nick;
         this.bombsAmount = bombsAmount;
         this.addInputHandling(playerMovedHandler, plantBombHandler);
-        console.log(`Player added at: ${position.x}, ${position.y}`);
+        console.log(`Player added at: uid: ${uid}; nick: ${nick}; position: ${position.x}, ${position.y}`);
     }
 
     setPosition = (x, y) => {
