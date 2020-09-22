@@ -5,6 +5,7 @@ window.onload = () => {
     const urlInput = document.getElementById("urlInput");
     const nickInput = document.getElementById("nickInput");
     const score = document.getElementById("scoreValue");
+    const bombs = document.getElementById("bombsValue");
 
     const game = new BomberGame();
     let serverConnection;
@@ -20,7 +21,8 @@ window.onload = () => {
                 handlePlayerPos,
                 handleBombHasBeenPlanted,
                 handleBombExploded,
-                handleCurrentScore
+                handleCurrentScore,
+                handleBombAmount
             });   // Create connection
         if(serverConnection !== null) {
             connectBtn.disabled = true;
@@ -75,6 +77,7 @@ window.onload = () => {
             sendPlayerPlantBomb)
         );
         score.innerText = msg.current_score;
+        bombs.innerText = msg.bombs_amount;
     }
 
     let handlePlayerPos = msg => {
@@ -107,5 +110,9 @@ window.onload = () => {
 
     let handleCurrentScore = msg => {
         score.innerText = msg.score;
+    }
+
+    let handleBombAmount = msg => {
+        bombs.innerText = msg.amount;
     }
 }
