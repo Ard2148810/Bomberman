@@ -9,34 +9,26 @@
     <script type="text/javascript" src="js/game.js"></script>
     <script type="text/javascript" src="js/connection.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
-    <div id="output"></div>
 
-    <form name="connectionForm">
-        <div style="color: darkred; background-color: gray; margin: 5px; padding: 5px;">
-            <label>
-                TEST RAW JSON REQUESTS, RESPONSES IN CONSOLE [DEBUG ONLY]:
-                <input type="text" name="debugRequests">
-            </label>
-            <input id="sendBtn" type="button" name="sendButton" value="Send" onClick="sendText();">
-        </div>
-        <div>
+    <form class="frame" name="connectionForm">
+        <div class="basic-spacing">
             <label>
                 Nickname:
                 <input id="nickInput" type="text" name="inputNickname" value="UnnamedPlayer">
             </label>
         </div>
-        <div>
+        <div class="basic-spacing">
             <label>
                 Server address:
                 <input id="urlInput" type="text" name="inputUrl" value="ws://localhost:8000/">
             </label>
         </div>
-        <div>
+        <div class="basic-spacing">
             <input id="disconnectBtn" type="button" name="disconnectButton" value="Disconnect">
             <input id="connectBtn" type="button" name="connectButton" value="Connect">
         </div>
     </form>
-    <div id="game">
+    <div class="frame" id="game">
         <pre id="display"></pre>
         <div id="score" class="big-text">Score: <span id="scoreValue">#</span></div>
         <div id="bombs" class="big-text">Bombs: <span id="bombsValue">#</span></div>
