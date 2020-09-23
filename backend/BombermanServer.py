@@ -14,8 +14,8 @@ from random import randrange
 
 from backend.library.SimpleWebSocketServer import WebSocket, SimpleSSLWebSocketServer, SimpleWebSocketServer
 
-bombTickingTime = 10
-moveCooldown = 1
+bombTickingTime = 3
+moveCooldown = 0.1
 
 
 class Bomb:
@@ -44,10 +44,10 @@ class BombermanServer:
         self.map_size_y = 10
         self.bombs_amount = 1
         self.bombs = []
-        self.boxAmount = 15
+        self.boxAmount = 150
         self.players = []
         self.box = []
-        self.giftsAmount = 8
+        self.giftsAmount = 10
         self.gifts = []
         self.playersPositions = [[1, 1], [1, self.map_size_y-1], [self.map_size_x-1, 1], [self.map_size_x-1, self.map_size_y-1]]
         self.voidBoxes = [[1, 2], [2, 1], [self.map_size_x - 2, 1], [self.map_size_x-1, 2], [1, self.map_size_y - 2],
@@ -97,8 +97,9 @@ class BombermanServer:
     def generate_boxes(self):
         for i in range(0, self.boxAmount):
             generatedCoords = [randrange(1,self.map_size_x), randrange(1,self.map_size_y)]
-            if generatedCoords in self.voidBoxes or generatedCoords in self.playersPositions or generatedCoords in self.standardBoxes:
+            if generatedCoords in self.voidBoxes or generatedCoords in self.playersPositions or generatedCoords in self.standardBoxes or generatedCoords in [d['pos'] for d in self.box]:
                 continue
+
             self.box.append(
                 {
                     "uid": str(uuid.uuid4()),
