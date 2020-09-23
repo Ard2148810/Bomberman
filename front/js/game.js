@@ -49,12 +49,18 @@ class BomberGame {
         this.bombs.set(bomb.uid, bomb);
     }
 
-    bombExplode = (bombKey, xRange, yRange, objectsHit) => {
+    bombExplode = (bombKey, xRange, yRange, objectsHit, explosionDuration = 500) => {
         const bomb = this.bombs.get(bombKey);
         const explosion = bomb.explode(xRange, yRange, this.gameMap.map);
         this.explosionGroups.set(explosion.uid, explosion);
         this.bombs.delete(bombKey);
         objectsHit.forEach(this.deleteObject);
+        setTimeout(() => {
+                this.explosionGroups.delete(explosion.uid);
+                this.displayMapWrapper();
+            },
+            explosionDuration);
+
     }
 
     addBox = (box) => {
@@ -132,7 +138,8 @@ class GameMap {
 
         // Add players to the map
         players.forEach(player => {
-            tmpMap[player.position.y][player.position.x] = `<span class="player1">${CH_PLAYER}</span>`;
+            tmpMap[player.position.y][player.position.x] =
+                `<span style="color: ${player.displayColor}">${CH_PLAYER}</span>`;
         });
 
         // Add bombs to the map
@@ -180,8 +187,9 @@ class GameObject {
 
 class Player extends GameObject {
 
-    constructor(uid, position, nick, playerMovedHandler, plantBombHandler) {
+    constructor(uid, position, nick, playerMovedHandler, plantBombHandler, displayColor = "#ffff00") {
         super(uid, position);
+        this.displayColor = displayColor;
         this.nick = nick;
         this.addInputHandling(playerMovedHandler, plantBombHandler);
         console.log(`Player added: uid: ${uid}; nick: ${nick}; position: ${position.x}, ${position.y}`);
