@@ -78,7 +78,6 @@ window.onload = () => {
         const gifts = msg.gifts;
         gifts.forEach(gift => {
             game.addGift(new Gift(gift.uid, {x: gift.pos[0], y: gift.pos[1]}))
-            // Against protocol because of incorrect protocol on the server
         })
         clientUID = msg.client_uid;
     }
@@ -122,7 +121,6 @@ window.onload = () => {
     let handleBombExploded = msg => {
         game.bombExplode(msg.bomb_uid, msg.x_range, msg.y_range, msg.objects_hit);
         game.displayMapWrapper();
-        //game.explosionGroups.delete(msg.bomb_uid);
     }
 
     let handleCurrentScore = msg => {

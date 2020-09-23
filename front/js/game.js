@@ -74,6 +74,8 @@ class BomberGame {
     deleteObject = (key) => {
         this.boxes.delete(key);
         this.gifts.delete(key);
+        const player = this.players.get(key);
+        if(player !== undefined) player.removeInputHandling();
         this.players.delete(key);
     }
 
@@ -191,7 +193,9 @@ class Player extends GameObject {
         super(uid, position);
         this.displayColor = displayColor;
         this.nick = nick;
-        this.addInputHandling(playerMovedHandler, plantBombHandler);
+        this.playerMovedHandler = playerMovedHandler;
+        this.plantBombHandler = plantBombHandler;
+        document.addEventListener('keydown', this.inputHandling);
         console.log(`Player added: uid: ${uid}; nick: ${nick}; position: ${position.x}, ${position.y}`);
     }
 
@@ -200,37 +204,38 @@ class Player extends GameObject {
         this.position.y = y;
     }
 
-    addInputHandling = (playerMovedHandler, plantBombHandler) => {
-        document.addEventListener('keydown', e => {
-            if(e.repeat) return;
-            let x = 0, y = 0, correctKey = true;
-            switch (e.key) {
-                case "ArrowDown":
-                    y = 1;
-                    break;
-                case "ArrowUp":
-                    y = -1;
-                    break;
-                case "ArrowLeft":
-                    x = -1;
-                    break;
-                case "ArrowRight":
-                    x = 1;
-                    break;
-                case " ":
-                    if(plantBombHandler !== undefined) plantBombHandler(this.uid);
-                    break;
-                default:
-                    correctKey = false;
-            }
-            if(correctKey) {
-                e.preventDefault();
-                if(playerMovedHandler !== undefined && e.key !== " ") {
-                    playerMovedHandler(this.position.x + x, this.position.y + y, this.uid);
-                }
-            }
+    removeInputHandling = () => {
+        document.removeEventListener('keydown', this.inputHandling);
+    }
 
-        });
+    inputHandling = e => {
+        if (e.repeat) return;
+        let x = 0, y = 0, correctKey = true;
+        switch (e.key) {
+            case "ArrowDown":
+                y = 1;
+                break;
+            case "ArrowUp":
+                y = -1;
+                break;
+            case "ArrowLeft":
+                x = -1;
+                break;
+            case "ArrowRight":
+                x = 1;
+                break;
+            case " ":
+                if (this.plantBombHandler !== undefined) this.plantBombHandler(this.uid);
+                break;
+            default:
+                correctKey = false;
+        }
+        if (correctKey) {
+            e.preventDefault();
+            if (this.playerMovedHandler !== undefined && e.key !== " ") {
+                this.playerMovedHandler(this.position.x + x, this.position.y + y, this.uid);
+            }
+        }
     }
 
 }
