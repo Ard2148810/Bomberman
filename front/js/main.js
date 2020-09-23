@@ -93,15 +93,16 @@ window.onload = () => {
             }
         } else {    // Otherwise add him as a new one
             let newPlayer = null;
-            if(msg.nick === nickInput.value) {
+            if(msg.nick === nickInput.value) {  // Local player
                 newPlayer = new Player(
                     clientUID,
                     {x: msg.x, y: msg.y},
                     msg.nick,
                     sendPlayerMove,
-                    sendPlayerPlantBomb);
+                    sendPlayerPlantBomb,
+                    "#00ccff");
             } else {
-                newPlayer = new Player(
+                newPlayer = new Player(         // Other player
                     msg.nick,
                     {x: msg.x, y: msg.y},
                     msg.nick,
@@ -121,7 +122,7 @@ window.onload = () => {
     let handleBombExploded = msg => {
         game.bombExplode(msg.bomb_uid, msg.x_range, msg.y_range, msg.objects_hit);
         game.displayMapWrapper();
-        game.explosionGroups.delete(msg.bomb_uid);
+        //game.explosionGroups.delete(msg.bomb_uid);
     }
 
     let handleCurrentScore = msg => {
