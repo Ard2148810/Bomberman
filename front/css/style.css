@@ -1,7 +1,7 @@
 pre {
     font-size: 3rem;
     background-color: black;
-    color: white;
+    color: #adadad;
     line-height: 0.6;
 }
 
@@ -36,5 +36,5 @@ pre {
 }
 
 .box {
-    color: gray;
+    color: #f3f3f3;
 }
