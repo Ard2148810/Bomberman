@@ -51,7 +51,7 @@ class BomberGame {
 
     bombExplode = (bombKey, xRange, yRange, objectsHit) => {
         const bomb = this.bombs.get(bombKey);
-        const explosion = bomb.explode(xRange, yRange);
+        const explosion = bomb.explode(xRange, yRange, this.gameMap.map);
         this.explosionGroups.set(explosion.uid, explosion);
         this.bombs.delete(bombKey);
         objectsHit.forEach(this.deleteObject);
@@ -142,10 +142,9 @@ class GameMap {
 
         // Add explosions to the map
         explosionGroups.forEach(group => {
-            console.log(group);
             group.explosions.forEach(explosion => {
                 if(this.explosionAllowed(map, explosion.x, explosion.y)) {
-                    tmpMap[explosion.y][explosion.x] = `<span class="bomb">${CH_EXPLOSION}</span>`
+                    tmpMap[explosion.y][explosion.x] = `<span class="bomb">${CH_EXPLOSION}</span>`;
                 }
             })
         });
@@ -181,10 +180,9 @@ class GameObject {
 
 class Player extends GameObject {
 
-    constructor(uid, position, nick, bombsAmount, playerMovedHandler, plantBombHandler) {
+    constructor(uid, position, nick, playerMovedHandler, plantBombHandler) {
         super(uid, position);
         this.nick = nick;
-        this.bombsAmount = bombsAmount;
         this.addInputHandling(playerMovedHandler, plantBombHandler);
         console.log(`Player added: uid: ${uid}; nick: ${nick}; position: ${position.x}, ${position.y}`);
     }
@@ -235,8 +233,8 @@ class Bomb extends GameObject {
         super(uid, position);
     }
 
-    explode = (xRange, yRange) => {
-        return new ExplosionGroup(this.uid, this.position, xRange, yRange);
+    explode = (xRange, yRange, map) => {
+        return new ExplosionGroup(this.uid, this.position, xRange, yRange, map);
     }
 }
 
@@ -256,21 +254,29 @@ class Gift extends GameObject {
 
 class ExplosionGroup extends GameObject {
 
-    constructor(uid, position, xRange, yRange) {
+    constructor(uid, position, xRange, yRange, map) {
         super(uid, position);
-        this.explosions = this.generateExplosions(position, xRange, yRange);
-
+        this.explosions = this.generateExplosions(position, xRange, yRange, map);
     }
 
-    generateExplosions = (position, x, y) => {
+    generateExplosions = (position, x, y, map) => {
         let expl = [];
-
-        expl.push( {x: position.x, y: position.y} );
-        for(let i = position.x - x; i <= position.x + x; i++) { // Horizontal explosions
-            if(i !== position.y) expl.push({x: i, y: position.y});
+        expl.push( {x: position.x, y: position.y} );                // Center
+        for(let i = position.x + 1; i <= position.x + x; i++) {     // Right
+            expl.push({x: i, y: position.y});
+            if(map[position.y][i] === CH_WALL) break;
         }
-        for(let i = position.y - y; i <= position.y + y; i++) { // Vertical explosions
-            if(i !== position.x) expl.push({x: position.x, y: i});
+        for(let i = position.x - 1; i >= position.x - x; i--) {     // Left
+            expl.push({x: i, y: position.y});
+            if(map[position.y][i] === CH_WALL) break;
+        }
+        for(let i = position.y + 1; i <= position.y + y; i++) {     // Up
+            expl.push({x: position.x, y: i});
+            if(map[i][position.x] === CH_WALL) break;
+        }
+        for(let i = position.y - 1; i >= position.y - y; i--) {     // Down
+            expl.push({x: position.x, y: i});
+            if(map[i][position.x] === CH_WALL) break;
         }
 
         return expl;

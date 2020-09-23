@@ -98,7 +98,6 @@ window.onload = () => {
                     clientUID,
                     {x: msg.x, y: msg.y},
                     msg.nick,
-                    game.defaultBombsAmount,
                     sendPlayerMove,
                     sendPlayerPlantBomb);
             } else {
@@ -106,7 +105,6 @@ window.onload = () => {
                     msg.nick,
                     {x: msg.x, y: msg.y},
                     msg.nick,
-                    game.defaultBombsAmount
                 );
             }
             game.addPlayer(newPlayer);
