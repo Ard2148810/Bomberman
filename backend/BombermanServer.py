@@ -164,7 +164,7 @@ class BombermanServer:
                         "y_range": bomb.y_range,
                         "objects_hit": objects_hit
                     }
-                    player.sendMessage(str(msg))
+                    player.sendMessage(str(msg).replace("'", "\""))
                     self.players.remove(player)
                     bomb.player.score += 1
                     msg = {"msg_code": "current score", "score": bomb.player.score}
