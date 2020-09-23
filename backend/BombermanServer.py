@@ -156,9 +156,16 @@ class BombermanServer:
 
             for player in self.players:
                 if [player.x, player.y] == blastPos:
-                    player.sendMessage("you died")
-                    self.players.remove(player)
                     objects_hit.append(player.name)
+                    msg = {
+                        "msg_code": "Bomb exploded",
+                        "bomb_uid": str(bomb.id),
+                        "x_range": bomb.x_range,
+                        "y_range": bomb.y_range,
+                        "objects_hit": objects_hit
+                    }
+                    player.sendMessage(str(msg))
+                    self.players.remove(player)
                     bomb.player.score += 1
                     msg = {"msg_code": "current score", "score": bomb.player.score}
                     bomb.player.sendMessage(str(msg).replace("'", "\""))
